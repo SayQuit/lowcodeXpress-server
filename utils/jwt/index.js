@@ -6,11 +6,27 @@ function createToken(account) {
     })
 }
 function checkExpires(token) {
-    let res
+    let res = false
     jwt.verify(token, secret, (error, result) => {
-        res = result
+        if (!error && result) res = true
     })
     return res
 }
 
-module.exports = { createToken, checkExpires };
+function validateToken(headers) {
+    if (!headers) return false
+    const authHeader = headers['authorization'];
+    if (!authHeader) return false
+    const splitHeaders = authHeader.split(' ')
+    if (splitHeaders.length !== 2) return false
+    const token = authHeader.split(' ')[1];
+    if (!checkExpires(token)) return false
+    return true
+
+}
+
+function getToken(headers) {
+    return headers['authorization'].split(' ')[1];
+}
+
+module.exports = { createToken, validateToken, getToken };
