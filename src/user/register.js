@@ -1,7 +1,7 @@
 const express = require('express');
 const registerRouter = express.Router();
-const registerSQL = require('../../../utils/sql/user/registerSQL')
-const sendUtil = require('../../../utils/send')
+const registerSQL = require('../../utils/sql/user/registerSQL')
+const sendUtil = require('../../utils/send')
 
 async function createAccount() {
     const existAccount = await registerSQL.selectAccount() || []
@@ -13,17 +13,17 @@ async function createAccount() {
 
 registerRouter.post('/', async (req, res) => {
     const { username, password } = req.body
-    if (!username || !password) sendUtil.sendFail(res)
-    else {
-        const account = await createAccount()
-        const row = await registerSQL.insertUser(account, password, username)
-        if (!row) sendUtil.sendFail(res)
-        else {
-            sendUtil.sendData(res, {
-                account
-            })
-        }
-    }
+    if (!username || !password) return sendUtil.sendFail(res)
+
+    const account = await createAccount()
+    const row = await registerSQL.insertUser(account, password, username)
+    if (!row) return sendUtil.sendFail(res)
+
+    return sendUtil.sendData(res, {
+        account
+    })
+
+
 });
 
 module.exports = registerRouter;

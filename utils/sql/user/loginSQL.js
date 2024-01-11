@@ -1,5 +1,5 @@
 const createDB = require('../../../module/db')
-const JWT = require('../../jwt/index')
+const JWT = require('../../jwt')
 
 async function selectUser(account) {
     const selectSQL = `select password, username, account from user where account='${account}'`

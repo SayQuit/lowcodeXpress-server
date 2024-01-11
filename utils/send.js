@@ -1,12 +1,12 @@
 function sendFail(res) {
-    res.send({
+    return res.send({
         msg: 'fail',
         status: 200,
     })
 }
 
 function sendData(res,data) {
-    res.send({
+    return res.send({
         msg: 'sucesss',
         status: 200,
         data
