@@ -10,7 +10,9 @@ app.use(express.urlencoded({
 app.use(cors());
 
 const userRouter = require('./src/user');
+const elementJSONRouter= require('./src/elementJSON');
 app.use('/user', userRouter);
+app.use('/element', elementJSONRouter);
 
 app.listen(5507, () => {
   console.log('Server is running on localhost:5507');
