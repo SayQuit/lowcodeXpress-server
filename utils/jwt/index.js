@@ -26,7 +26,8 @@ function validateToken(headers) {
 }
 
 function getToken(headers) {
+    if(!validateToken)return null
     return headers['authorization'].split(' ')[1];
 }
 
-module.exports = { createToken, validateToken, getToken };
+module.exports = { createToken, getToken };

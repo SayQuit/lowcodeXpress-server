@@ -6,9 +6,9 @@ const JWT = require('../../../utils/jwt/index')
 
 tokenLoginRouter.post('/', async (req, res) => {
     const { headers } = req
-    if (!JWT.validateToken(headers)) sendUtil.sendFail(res)
+    const token = JWT.getToken(headers)
+    if (!token) sendUtil.sendFail(res)
     else {
-        const token = JWT.getToken(headers)
         const row = await tokenLoginSQL.selectUser(token)
         if (!row) sendUtil.sendFail(res)
         else {
