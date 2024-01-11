@@ -1,6 +1,6 @@
 const express = require('express');
 const registerRouter = express.Router();
-const registerSQL = require('./registerSQL')
+const registerSQL = require('../../../utils/sql/user/registerSQL')
 const sendUtil = require('../../../utils/send')
 
 async function createAccount() {

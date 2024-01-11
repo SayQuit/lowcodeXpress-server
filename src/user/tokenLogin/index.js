@@ -1,6 +1,6 @@
 const express = require('express');
 const tokenLoginRouter = express.Router();
-const tokenLoginSQL = require('./tokenLoginSQL')
+const tokenLoginSQL = require('../../../utils/sql/user/tokenLoginSQL')
 const sendUtil = require('../../../utils/send')
 const JWT = require('../../../utils/jwt/index')
 

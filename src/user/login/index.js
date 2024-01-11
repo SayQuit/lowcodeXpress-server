@@ -1,6 +1,6 @@
 const express = require('express');
 const loginRouter = express.Router();
-const loginSQL = require('./loginSQL')
+const loginSQL = require('../../../utils/sql/user/loginSQL')
 const sendUtil = require('../../../utils/send')
 
 loginRouter.post('/', async (req, res) => {
