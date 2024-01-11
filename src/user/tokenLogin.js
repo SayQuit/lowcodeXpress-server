@@ -1,19 +1,19 @@
 const express = require('express');
 const tokenLoginRouter = express.Router();
-const tokenLoginSQL = require('../../utils/sql/user/tokenLoginSQL')
-const sendUtil = require('../../utils/send')
-const JWT = require('../../utils/jwt')
+const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
+const { sendFail, sendData } = require('../../utils/send')
+const { getToken } = require('../../utils/jwt')
 
 tokenLoginRouter.post('/', async (req, res) => {
     const { headers } = req
-    const token = JWT.getToken(headers)
-    if (!token) return sendUtil.sendFail(res)
+    const token = getToken(headers)
+    if (!token) return sendFail(res)
 
-    const row = await tokenLoginSQL.selectUser(token)
-    if (!row) return sendUtil.sendFail(res)
+    const row = await selectUser(token)
+    if (!row) return sendFail(res)
 
     const { account, username } = row
-    return sendUtil.sendData(res, {
+    return sendData(res, {
         account,
         username
     })
