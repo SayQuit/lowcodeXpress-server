@@ -26,7 +26,7 @@ function validateToken(headers) {
 }
 
 function getToken(headers) {
-    if(!validateToken)return null
+    if(!validateToken(headers))return null
     return headers['authorization'].split(' ')[1];
 }
 
