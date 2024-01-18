@@ -3,10 +3,10 @@ const createDB = require('../../../module/db')
 async function insertUser(account, password, username) {
     const insertSQL = `insert into user(account,username,password) values ('${account}','${username}','${password}')`
     const db = await createDB()
-    return new Promise((resolve) => {
-        db.query(insertSQL, (error) => {
-            if (error) resolve(null)
-            else resolve(true)
+    return new Promise((resolve, reject) => {
+        db.query(insertSQL, (error, result) => {
+            if (error) reject(error)
+            else resolve(result)
         })
     })
 }
@@ -14,9 +14,9 @@ async function insertUser(account, password, username) {
 async function selectAccount() {
     const selectSQL = `select account from user`
     const db = await createDB()
-    return new Promise((resolve) => {
+    return new Promise((resolve,reject) => {
         db.query(selectSQL, (error, result) => {
-            if (error) resolve(null)
+            if (error) reject(error)
             else resolve(result.map((value) => { return { ...value } }))
         })
     })

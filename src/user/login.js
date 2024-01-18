@@ -7,18 +7,17 @@ loginRouter.post('/', async (req, res) => {
     const { account, password } = req.body
     if (!account || !password) return sendFail(res)
 
-    const row = await selectUser(account, password)
-    if (!row || row.password !== password) return sendFail(res)
-
-    const token = await updateToken(account)
-    if (!token) return sendFail(res)
-
-    return sendData(res, {
-        account,
-        username: row.username,
-        token
-    })
-
+    try {
+        const row = await selectUser(account, password)
+        const token = await updateToken(account)
+        sendData(res, {
+            account,
+            username: row.username,
+            token
+        })
+    } catch (error) {
+        sendFail(res)
+    }
 
 });
 

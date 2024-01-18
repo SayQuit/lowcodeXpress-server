@@ -9,15 +9,16 @@ tokenLoginRouter.post('/', async (req, res) => {
     const token = getToken(headers)
     if (!token) return sendFail(res)
 
-    const row = await selectUser(token)
-    if (!row) return sendFail(res)
-
-    const { account, username } = row
-    return sendData(res, {
-        account,
-        username
-    })
-
+    try {
+        const row = await selectUser(token)
+        const { account, username } = row
+        sendData(res, {
+            account,
+            username
+        })
+    } catch (error) {
+        sendFail(res)
+    }
 
 });
 

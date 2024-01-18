@@ -9,21 +9,17 @@ getRouter.post('/', async (req, res) => {
     const { headers } = req
     const token = getToken(headers)
     if (!token) return sendFail(res)
-
-    const userRow = await selectUser(token)
-    if (!userRow) return sendFail(res)
-
-    const { account } = userRow
-    const JSONRow = selectJSON(account)
-    if (!JSONRow) return sendFail(res)
-
-    const jsonList = await JSONRow
-    sendData(res, {
-        jsonList
-    })
-
-
-
+    try {
+        const userRow = await selectUser(token)
+        const { account } = userRow
+        const JSONRow = selectJSON(account)
+        const jsonList = await JSONRow
+        sendData(res, {
+            jsonList
+        })
+    } catch (error) {
+        sendFail(res)
+    }
 
 });
 

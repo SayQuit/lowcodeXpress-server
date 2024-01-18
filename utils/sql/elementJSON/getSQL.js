@@ -3,9 +3,9 @@ const createDB = require('../../../module/db')
 async function selectJSON(account) {
     const selectSQL = `select id,json,createAt from element_json where account = '${account}' order by createAt DESC;`
     const db = await createDB()
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         db.query(selectSQL, (error, results) => {
-            if (error) resolve(null)
+            if (error) reject(error)
             else resolve(results.map((value) => { return { ...value } }))
         })
     })
