@@ -7,7 +7,7 @@ function sendFail(res) {
 
 function sendData(res,data) {
     return res.send({
-        msg: 'sucesss',
+        msg: 'success',
         status: 200,
         data
     })
