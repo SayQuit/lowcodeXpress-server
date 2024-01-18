@@ -1,7 +1,7 @@
 const express = require('express');
 const getRouter = express.Router();
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
-const { selectJSON } = require('../../utils/sql/elementJSON/getSQL')
+const { selectJSON } = require('../../utils/sql/project/getSQL')
 const { sendFail, sendData } = require('../../utils/send')
 const { getToken } = require('../../utils/jwt')
 

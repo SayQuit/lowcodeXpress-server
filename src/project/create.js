@@ -4,7 +4,7 @@ const { sendFail, sendData } = require('../../utils/send')
 const { getRandomID } = require('../../utils/randomID')
 const { getToken } = require('../../utils/jwt')
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
-const { insertJSON } = require('../../utils/sql/elementJSON/createSQL')
+const { insertJSON } = require('../../utils/sql/project/createSQL')
 
 createRouter.post('/', async (req, res) => {
     const { json, name, description } = req.body

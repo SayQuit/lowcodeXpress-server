@@ -10,9 +10,9 @@ app.use(express.urlencoded({
 app.use(cors());
 
 const userRouter = require('./src/user');
-const elementJSONRouter = require('./src/elementJSON');
+const projectRouter = require('./src/project');
 app.use('/user', userRouter);
-app.use('/element', elementJSONRouter);
+app.use('/project', projectRouter);
 
 app.post('/test', async (_, res) => {
   return res.send({
