@@ -2,4 +2,4 @@
 
 # dependencies
 /node_modules
-/module/db/db_password.txt
+/utils/db/db_password.txt

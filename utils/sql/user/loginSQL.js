@@ -1,4 +1,4 @@
-const createDB = require('../../../module/db')
+const createDB = require('../../db')
 const JWT = require('../../jwt')
 
 async function selectUser(account) {

@@ -1,4 +1,4 @@
-const createDB = require('../../../module/db')
+const createDB = require('../../db')
 
 async function selectUser(token) {
     const selectSQL = `select username, account from user where token='${token}'`

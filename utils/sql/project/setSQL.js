@@ -1,4 +1,4 @@
-const createDB = require('../../../module/db')
+const createDB = require('../../db')
 
 async function updateJSON(id, json, account, name, description) {
     const time = new Date().getTime()

@@ -1,4 +1,4 @@
-const createDB = require('../../../module/db')
+const createDB = require('../../db')
 
 async function insertUser(account, password, username) {
     const insertSQL = `insert into user(account,username,password) values ('${account}','${username}','${password}')`

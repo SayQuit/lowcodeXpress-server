@@ -1,4 +1,4 @@
-const createDB = require('../../../module/db')
+const createDB = require('../../db')
 
 async function selectJSON(account) {
     const selectSQL = `select id,json,createAt from project where account = '${account}' order by createAt DESC;`
