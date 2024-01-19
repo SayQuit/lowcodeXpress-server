@@ -13,9 +13,10 @@ getRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const JSONRow = selectJSON(account)
-        const jsonList = await JSONRow
+        const projectList = await JSONRow
+        console.log(projectList);
         sendData(res, {
-            jsonList
+            projectList
         })
     } catch (error) {
         sendFail(res)
