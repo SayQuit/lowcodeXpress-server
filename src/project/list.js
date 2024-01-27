@@ -1,7 +1,7 @@
 const express = require('express');
 const getRouter = express.Router();
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
-const { selectJSON } = require('../../utils/sql/project/getSQL')
+const { selectJSON } = require('../../utils/sql/project/listSQL')
 const { sendFail, sendData } = require('../../utils/send')
 const { getToken } = require('../../utils/jwt')
 
@@ -13,7 +13,22 @@ getRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const JSONRow = selectJSON(account)
-        const projectList = await JSONRow
+        const list = await JSONRow
+        const projectList = list.map((item) => {
+            const { createAt, id, json } = item
+            const obj = JSON.parse(json)
+            const { name, desc, type, tech, lib } = obj
+            const tag = [type]
+            if (tech) tag.push(tech)
+            tag.push(...lib)
+            return {
+                createAt,
+                id,
+                name,
+                desc,
+                tag
+            }
+        })
         sendData(res, {
             projectList
         })
