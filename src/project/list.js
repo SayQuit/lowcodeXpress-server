@@ -1,11 +1,11 @@
 const express = require('express');
-const getRouter = express.Router();
+const listRouter = express.Router();
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { selectJSON } = require('../../utils/sql/project/listSQL')
 const { sendFail, sendData } = require('../../utils/send')
 const { getToken } = require('../../utils/jwt')
 
-getRouter.post('/', async (req, res) => {
+listRouter.post('/', async (req, res) => {
     const { headers } = req
     const token = getToken(headers)
     if (!token) return sendFail(res)
@@ -38,4 +38,4 @@ getRouter.post('/', async (req, res) => {
 
 });
 
-module.exports = getRouter;
+module.exports = listRouter;
