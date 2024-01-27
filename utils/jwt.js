@@ -19,6 +19,8 @@ function validateToken(headers) {
     if (!authHeader) return false
     const splitHeaders = authHeader.split(' ')
     if (splitHeaders.length !== 2) return false
+    const prev = authHeader.split(' ')[0];
+    if (prev!=='Bearer') return false
     const token = authHeader.split(' ')[1];
     if (!checkExpires(token)) return false
     return true

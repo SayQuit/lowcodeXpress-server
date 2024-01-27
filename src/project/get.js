@@ -14,7 +14,6 @@ getRouter.post('/', async (req, res) => {
         const { account } = userRow
         const JSONRow = selectJSON(account)
         const projectList = await JSONRow
-        console.log(projectList);
         sendData(res, {
             projectList
         })
