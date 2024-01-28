@@ -10,8 +10,7 @@ createRouter.post('/', async (req, res) => {
     const { element, name, description, type, tech, lib } = req.body
     const { headers } = req
     const token = getToken(headers)
-    if (!token || !name || !description || !createAt || !type || !lib) return sendFail(res)
-
+    if (!token || !name || !description || !type || !lib) return sendFail(res)
     try {
         const id = getRandomID()
         const userRow = await selectUser(token)

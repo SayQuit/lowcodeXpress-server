@@ -15,12 +15,12 @@ listRouter.post('/', async (req, res) => {
         const JSONRow = selectJSON(account)
         const list = await JSONRow
         const projectList = list.map((item) => {
-            const { createAt, id, name, desc, type, tech, lib } = item
+            const { createAt, id, name, description, type, tech, lib } = item
             return {
                 createAt,
                 id,
                 name,
-                desc,
+                description,
                 tag: [type, tech, ...lib]
             }
         })
@@ -28,6 +28,7 @@ listRouter.post('/', async (req, res) => {
             projectList
         })
     } catch (error) {
+        console.log(error);
         sendFail(res)
     }
 
