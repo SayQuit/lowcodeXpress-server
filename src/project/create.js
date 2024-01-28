@@ -7,16 +7,16 @@ const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { insertJSON } = require('../../utils/sql/project/createSQL')
 
 createRouter.post('/', async (req, res) => {
-    const { json, name, description } = req.body
+    const { element, name, description, type, tech, lib } = req.body
     const { headers } = req
     const token = getToken(headers)
-    if (!token || !json || !name || !description) return sendFail(res)
+    if (!token || !name || !description || !createAt || !type || !lib) return sendFail(res)
 
     try {
         const id = getRandomID()
         const userRow = await selectUser(token)
         const { account } = userRow
-        await insertJSON(account, json, id, name, description)
+        await insertJSON(account, element, id, name, description, type, tech, lib)
         sendData(res, null)
     } catch (error) {
         sendFail(res)
