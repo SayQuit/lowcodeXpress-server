@@ -29,7 +29,6 @@ listRouter.post('/', async (req, res) => {
             projectList
         })
     } catch (error) {
-        console.log(error);
         sendFail(res)
     }
 
