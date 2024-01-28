@@ -24,7 +24,8 @@ detailRouter.post('/', async (req, res) => {
             tech,
             lib,
             element,
-            lastModified
+            lastModified,
+            tag: [type, tech, ...lib]
         })
     } catch (error) {
         sendFail(res)
