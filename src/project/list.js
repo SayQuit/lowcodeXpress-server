@@ -15,12 +15,13 @@ listRouter.post('/', async (req, res) => {
         const JSONRow = selectJSON(account)
         const list = await JSONRow
         const projectList = list.map((item) => {
-            const { createAt, id, name, description, type, tech, lib } = item
+            const { createAt, id, name, description, type, tech, lib, lastModified } = item
             return {
                 createAt,
                 id,
                 name,
                 description,
+                lastModified,
                 tag: [type, tech, ...lib]
             }
         })

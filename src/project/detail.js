@@ -14,7 +14,7 @@ detailRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const detailRow = await selectJSON(account, id)
-        const { createAt, element, name, description, type, tech, lib } = detailRow
+        const { createAt, element, name, description, type, tech, lib, lastModified } = detailRow
         sendData(res, {
             createAt,
             id,
@@ -23,7 +23,8 @@ detailRouter.post('/', async (req, res) => {
             type,
             tech,
             lib,
-            element
+            element,
+            lastModified
         })
     } catch (error) {
         sendFail(res)
