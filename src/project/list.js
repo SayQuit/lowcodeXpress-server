@@ -18,7 +18,7 @@ listRouter.post('/', async (req, res) => {
             const { createAt, id, name, description, type, tech, lib, lastModified } = item
             const tags = []
             if (type) tags.push(type)
-            if (tech) tags.push(type)
+            if (tech) tags.push(tech)
             return {
                 createAt,
                 id,

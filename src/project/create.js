@@ -12,11 +12,10 @@ createRouter.post('/', async (req, res) => {
     const token = getToken(headers)
     if (!token || !name || !description || !type || !lib) return sendFail(res)
     try {
-        const dragGroup = ['basic', type, tech, ...lib]
         const id = getRandomID()
         const userRow = await selectUser(token)
         const { account } = userRow
-        await insertJSON(account, element, id, name, description, type, tech, lib, dragGroup)
+        await insertJSON(account, element, id, name, description, type, tech, lib)
         sendData(res, null)
     } catch (error) {
         sendFail(res)
