@@ -12,9 +12,10 @@ setRouter.post('/', async (req, res) => {
     if (!token || !name || !description || !id  || !type || !lib) return sendFail(res)
 
     try {
+        const dragGroup = ['basic', type, tech, ...lib]
         const userRow = await tokenLoginSQL.selectUser(token)
         const { account } = userRow
-        await setSQL.updateJSON(account, element, id, name, description, type, tech, lib)
+        await setSQL.updateJSON(account, element, id, name, description, type, tech, lib, dragGroup)
         sendData(res, null)
     } catch (error) {
         sendFail(res)

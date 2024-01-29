@@ -16,13 +16,16 @@ listRouter.post('/', async (req, res) => {
         const list = await JSONRow
         const projectList = list.map((item) => {
             const { createAt, id, name, description, type, tech, lib, lastModified } = item
+            const tags = []
+            if (type) tags.push(type)
+            if (tech) tags.push(type)
             return {
                 createAt,
                 id,
                 name,
                 description,
                 lastModified,
-                tags: [type, tech, ...lib]
+                tags: [...tags, ...lib]
             }
         })
         sendData(res, {
