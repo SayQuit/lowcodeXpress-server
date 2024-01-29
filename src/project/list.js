@@ -22,7 +22,7 @@ listRouter.post('/', async (req, res) => {
                 name,
                 description,
                 lastModified,
-                tag: [type, tech, ...lib]
+                tags: [type, tech, ...lib]
             }
         })
         sendData(res, {
