@@ -14,6 +14,7 @@ async function selectJSON(account, id) {
                     element: JSON.parse(results[0].element),
                     createAt: formatTime(results[0].createAt),
                     lastModified: formatTime(results[0].lastModified),
+                    variable:JSON.parse(results[0].variable),
                 })
             }
         })
