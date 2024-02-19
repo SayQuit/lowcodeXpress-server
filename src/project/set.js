@@ -6,7 +6,7 @@ const { sendData, sendFail } = require('../../utils/send')
 const JWT = require('../../utils/jwt')
 
 setRouter.post('/', async (req, res) => {
-    const { element, id, name, description,  type, tech, lib } = req.body
+    const { element, id, name, description,  type, tech, lib, variable } = req.body
     const { headers } = req
     const token = JWT.getToken(headers)
     if (!token || !name || !description || !id  || !type || !lib) return sendFail(res)
@@ -14,7 +14,7 @@ setRouter.post('/', async (req, res) => {
     try {
         const userRow = await tokenLoginSQL.selectUser(token)
         const { account } = userRow
-        await setSQL.updateJSON(account, element, id, name, description, type, tech, lib)
+        await setSQL.updateJSON(account, element, id, name, description, type, tech, lib, variable)
         sendData(res, null)
     } catch (error) {
         sendFail(res)
