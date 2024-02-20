@@ -14,11 +14,14 @@ const projectRouter = require('./src/project');
 app.use('/user', userRouter);
 app.use('/project', projectRouter);
 
-app.post('/test', async (_, res) => {
+app.get('/test', async (_, res) => {
+  
   return res.send({
     msg: 'success',
     status: 200,
-    data:{}
+    data:{
+      a:'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+    }
   })
 });
 

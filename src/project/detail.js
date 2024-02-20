@@ -14,7 +14,7 @@ detailRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const detailRow = await selectJSON(account, id)
-        const { createAt, element, name, description, type, tech, lib, lastModified, variable } = detailRow
+        const { createAt, element, name, description, type, tech, lib, lastModified, variable, event } = detailRow
         const tags = []
         if (type) tags.push(type)
         if (tech) tags.push(tech)
@@ -33,7 +33,8 @@ detailRouter.post('/', async (req, res) => {
             lastModified,
             tags: [...tags, ...lib],
             dragGroup: [...dragGroup, ...lib],
-            variable
+            variable,
+            event
         })
     } catch (error) {
         sendFail(res)
