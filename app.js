@@ -20,7 +20,7 @@ app.get('/test', async (_, res) => {
     msg: 'success',
     status: 200,
     data:{
-      a:'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
+      b:'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
     }
   })
 });
