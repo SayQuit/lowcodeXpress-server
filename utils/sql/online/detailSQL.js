@@ -2,7 +2,7 @@ const createDB = require('../../db')
 const { formatTime } = require('../../time')
 
 async function selectJSON(account, id) {
-    const selectSQL = `select * from online where account = '${account}' and id = '${id}'`
+    const selectSQL = `select * from onlineProject where account = '${account}' and id = '${id}'`
     const db = await createDB()
     return new Promise((resolve, reject) => {
         db.query(selectSQL, (error, results) => {

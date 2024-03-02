@@ -16,11 +16,12 @@ createRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const detailRow = await selectJSON(account, id)
-        const { element, name, description, type, tech, variable, event, props, lib } = detailRow
+        const { element, name, description, type, tech, variable, event, props, lib, onload } = detailRow
         const onlineID = getRandomID()
-        await insertJSON(account, element, onlineID, name, description, type, tech, variable, event, props, lib)
+        await insertJSON(account, element, onlineID, name, description, type, tech, variable, event, props, lib, onload)
         sendData(res, { id: onlineID })
     } catch (error) {
+        console.log(error);
         sendFail(res)
     }
 
