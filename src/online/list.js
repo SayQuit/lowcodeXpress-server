@@ -1,7 +1,7 @@
 const express = require('express');
 const listRouter = express.Router();
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
-const { selectJSON } = require('../../utils/sql/project/listSQL')
+const { selectJSON } = require('../../utils/sql/online/listSQL')
 const { sendFail, sendData } = require('../../utils/send')
 const { getToken } = require('../../utils/jwt')
 
@@ -13,9 +13,9 @@ listRouter.post('/', async (req, res) => {
         const userRow = await selectUser(token)
         const { account } = userRow
         const JSONRow = await selectJSON(account)
-        const  projectList  = JSONRow
-        const list = projectList.map((item) => {
-            const { createAt, id, name, description, type, tech, lib, lastModified } = item
+        const onlineList = JSONRow
+        const list = onlineList.map((item) => {
+            const { createAt, id, name, description, lib, type, tech } = item
             const tags = []
             if (type) tags.push(type)
             if (tech) tags.push(tech)
@@ -24,7 +24,6 @@ listRouter.post('/', async (req, res) => {
                 id,
                 name,
                 description,
-                lastModified,
                 tags: [...tags, ...lib]
             }
         })
@@ -32,6 +31,7 @@ listRouter.post('/', async (req, res) => {
             list
         })
     } catch (error) {
+        console.log(error);
         sendFail(res)
     }
 

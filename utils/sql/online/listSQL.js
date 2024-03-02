@@ -2,17 +2,16 @@ const createDB = require('../../db')
 const { formatTime } = require('../../time')
 
 async function selectJSON(account) {
-    const selectSQL = `select * from project where account = '${account}' order by lastModified DESC;`
+    const selectSQL = `select * from online where account = '${account}' order by createAt DESC;`
     const db = await createDB()
     return new Promise((resolve, reject) => {
         db.query(selectSQL, (error, results) => {
             if (error) reject(error)
             else resolve(results.map((item) => {
-                return { 
-                    ...item, 
-                    lib: JSON.parse(item.lib), 
+                return {
+                    ...item,
                     createAt: formatTime(item.createAt),
-                    lastModified: formatTime(item.lastModified),
+                    lib: JSON.parse(item.lib)
                 }
             }))
         })

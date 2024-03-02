@@ -11,8 +11,10 @@ app.use(cors());
 
 const userRouter = require('./src/user');
 const projectRouter = require('./src/project');
+const onlineRouter = require('./src/online');
 app.use('/user', userRouter);
 app.use('/project', projectRouter);
+app.use('/online', onlineRouter);
 
 app.get('/test', async (_, res) => {
   
