@@ -21,7 +21,6 @@ createRouter.post('/', async (req, res) => {
         await insertJSON(account, element, onlineID, name, description, type, tech, variable, event, props, lib, onload)
         sendData(res, { id: onlineID })
     } catch (error) {
-        console.log(error);
         sendFail(res)
     }
 

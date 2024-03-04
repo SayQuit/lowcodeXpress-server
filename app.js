@@ -12,9 +12,11 @@ app.use(cors());
 const userRouter = require('./src/user');
 const projectRouter = require('./src/project');
 const onlineRouter = require('./src/online');
+const exportRouter=require('./src/export')
 app.use('/user', userRouter);
 app.use('/project', projectRouter);
 app.use('/online', onlineRouter);
+app.use('/export', exportRouter);
 
 app.get('/test', async (_, res) => {
   
