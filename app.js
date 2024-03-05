@@ -7,7 +7,9 @@ app.use(express.urlencoded({
   limit: '50mb',
   extended: true,
 }));
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['Content-Disposition'],
+}));
 
 const userRouter = require('./src/user');
 const projectRouter = require('./src/project');
