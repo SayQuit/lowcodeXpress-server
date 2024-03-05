@@ -1,4 +1,5 @@
 const prettier = require('prettier');
+const { toCamelCase, transfromConstToVariable } = require('../str');
 
 const reactTemplate = async (element, name, lib, variable, event, props, onload) => {
   const el = parseReactElement(element, variable, props, event)
@@ -41,9 +42,6 @@ const reactTemplate = async (element, name, lib, variable, event, props, onload)
   });
 }
 
-function toCamelCase(str) {
-  return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-}
 
 
 const getLibComponent = () => {
@@ -101,7 +99,10 @@ const parseReactElementAttribute = (item, variable, props, event) => {
   })
   for (const key in item.attr) {
     if (attrArray.indexOf(key) === -1 && key !== 'children') {
-      attr += ` ${key}={${JSON.stringify(item.attr[key])}}`
+      if (item.attr[key][0] === '{' && item.attr[key][item.attr[key].length - 1] === '}')
+        attr += ` ${key}=${item.attr[key]}`
+      else
+        attr += ` ${key}={${JSON.stringify(item.attr[key])}}`
       attrArray.push(key)
     }
   }
@@ -110,7 +111,7 @@ const parseReactElementAttribute = (item, variable, props, event) => {
 
 const parseReactElement = (element, variable, props, event) => {
   let res = ''
-  // 如果这里有，那么修改element？
+
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
@@ -122,6 +123,22 @@ const parseReactElement = (element, variable, props, event) => {
     }
     else if (item.type === 'container') { }
     else if (item.type === 'circle') {
+      item.target.forEach((t_item) => {
+        let match = null;
+        [...props, ...variable].forEach(v_item => {
+          if (v_item.name === item.circleVariableName) {
+            match = v_item.value;
+          }
+        });
+        let current = item.circleElement;
+        const keys = t_item.toArray
+        for (let i = 0; i < keys.length - 1; i++) {
+          const key = keys[i];
+          if (!current[key]) return
+          current = current[key];
+        }
+        current[keys[keys.length - 1]] = transfromConstToVariable(t_item.fromArray);
+      })
       el += `
         {${item.circleVariableName}.map((item,index)=>{
           return <div key={index}${parseReactElementAttribute(item, variable, props, event)}>
