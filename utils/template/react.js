@@ -1,12 +1,11 @@
 const prettier = require('prettier');
 
 const reactTemplate = async (element, name, lib, variable, event, props, onload) => {
-  const a = parseReactElement(element, variable, props, event)
+  const el = parseReactElement(element, variable, props, event)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
-  // const noVariable = variable.length === 0
-  // const noProps = props.length === 0
+
   return prettier.format(`
-  ${parseReactImport(lib)}
+  ${parseReactImport(getLibComponent())}
 
   function ${name}({${parseReactProps(props)}}) {
   ${parseReactVariable(variable, props)}
@@ -29,7 +28,7 @@ const reactTemplate = async (element, name, lib, variable, event, props, onload)
 
     return (
       <>
-        ${a}
+        ${el}
       </>
     );
   }
@@ -46,6 +45,17 @@ function toCamelCase(str) {
   return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 }
 
+
+const getLibComponent = () => {
+  return []
+}
+
+const parseReactImport = () => {
+  let res = `
+  import { useState, useEffect } from "react";
+  `
+  return res
+}
 
 const parseReactElementText = (item, variable, props) => {
   let text = null
@@ -66,26 +76,41 @@ const parseReactElementText = (item, variable, props) => {
 const parseReactElementAttribute = (item, variable, props, event) => {
   let attr = ''
   if (Object.keys(item.styleObject).length > 0) attr += ` style={${JSON.stringify(item.styleObject)}}`
+  const attrArray = []
   variable.forEach((v_item) => {
     if (v_item.bindElement === item.id) {
-      if (v_item.bind !== 'children') attr += ` ${v_item.bind}={state.${v_item.name}}`
+      if (v_item.bind !== 'children') {
+        attr += ` ${v_item.bind}={state.${v_item.name}}`
+        attrArray.push(v_item.bind)
+      }
     }
   })
   props.forEach((p_item) => {
     if (p_item.bindElement === item.id) {
-      if (p_item.bind !== 'children') attr += ` ${p_item.bind}={state.${p_item.name}}`
+      if (p_item.bind !== 'children') {
+        attr += ` ${p_item.bind}={state.${p_item.name}}`
+        attrArray.push(p_item.bind)
+      }
     }
   })
   event.forEach((e_item) => {
     if (e_item.bindElement === item.id) {
       attr += ` ${e_item.bindEvent}={${e_item.name}}`
+      attrArray.push(e_item.bindEvent)
     }
   })
+  for (const key in item.attr) {
+    if (attrArray.indexOf(key) === -1 && key !== 'children') {
+      attr += ` ${key}={${JSON.stringify(item.attr[key])}}`
+      attrArray.push(key)
+    }
+  }
   return attr
 }
 
 const parseReactElement = (element, variable, props, event) => {
   let res = ''
+  // 如果这里有，那么修改element？
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
@@ -97,7 +122,13 @@ const parseReactElement = (element, variable, props, event) => {
     }
     else if (item.type === 'container') { }
     else if (item.type === 'circle') {
-
+      el += `
+        {${item.circleVariableName}.map((item,index)=>{
+          return <div key={index}${parseReactElementAttribute(item, variable, props, event)}>
+            ${parseReactElement([item.circleElement], variable, props, event)}
+          </div>
+        })}
+        `
     }
     else if (item.type.startsWith('ant-') || item.type.startsWith('eui-')) {
       el += `
@@ -114,10 +145,7 @@ const parseReactElement = (element, variable, props, event) => {
 
   return res
 }
-const parseReactImport = (lib) => {
-  let res = ''
-  return res
-}
+
 
 const parseReactProps = (props) => {
   let res = ''
@@ -158,7 +186,7 @@ const parseReactEvent = (event) => {
       fn = `
         const params = {};
 
-        ${JSON.stringify(item.request.params)}.forEach((item) => { params[item] = get(item) })
+        ${JSON.stringify(item.request.params)}.forEach((item) => { const value=get(item);if(value)params[item] = get(item) })
         xhrRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
       `
       if (item.request.set) {
@@ -180,13 +208,13 @@ const parseReactEvent = (event) => {
       `
     }
     else if (item.type === 'setValue') {
-
-      fn = `set(${JSON.stringify(item.setValue.variable)},${JSON.stringify(item.setValue.newValue)})`
+      if (item.setValue.useE) fn = `set(${JSON.stringify(item.setValue.variable)},${item.setValue.newValue})`
+      else fn = `set(${JSON.stringify(item.setValue.variable)},${JSON.stringify(item.setValue.newValue)})`
       func += `
-      const ${item.name} = () => {
+        const ${item.name} = (${item.setValue.useE ? 'e' : ''}) => {
         ${fn}
-      }
-      `
+        }
+        `
     }
   })
   return func
