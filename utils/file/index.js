@@ -17,12 +17,11 @@ async function parseElementToFile(element, name, type, tech, lib, variable, even
 
 
 function generateJSXFile(code, name, folderPath) {
-    const tempDir = path.join(__dirname, folderPath);
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir);
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
     }
 
-    const filePath = path.join(tempDir, `${name}.jsx`);
+    const filePath = path.join(folderPath, `${name}.jsx`);
 
     fs.writeFileSync(filePath, code);
 }
@@ -35,15 +34,21 @@ const createDir = (folderPath) => {
         });
     })
 }
-
 const createReactProject = async (name, newPath) => {
-    const reactPath = path.join(__dirname, '../../project_template/react')
-    console.log(reactPath);
     try {
-        await fsExtra.copy(reactPath, path.join(__dirname, newPath));
-    } catch (err) {
-    }
+        console.log(newPath);
+        const command = `npx create-react-app ${toHyphenCase(name)}`;
+        const { stdout, stderr } = await exec(command, { cwd: newPath });
 
+        console.log('命令输出：', stdout);
+        if (stderr) {
+            console.error('错误输出：', stderr);
+        }
+
+        console.log(`React项目 ${name} 创建成功！`);
+    } catch (error) {
+        console.error('创建React项目时出现错误：', error.message);
+    }
 };
 
 
@@ -77,5 +82,20 @@ function deleteFolderRecursive(folderPath) {
         fs.rmdirSync(folderPath);
     }
 }
+function modifyReactAppFile(filePath, componentName) {
+    try {
 
-module.exports = { parseElementToFile, generateJSXFile, createDir, createReactProject, createVueProject, deleteFolderRecursive }
+        const templateContent = fs.readFileSync(path.join(__dirname, './ReactApp.js'), 'utf8')
+        console.log(fileContent);
+
+        const modifiedContent = templateContent.replace(`__import__`, `import ${componentName} from '../src/component/${componentName}'`).replace(`__component__`, `<${componentName}></${componentName}>`)
+        console.log(modifiedContent);
+
+        fs.writeFileSync(filePath, modifiedContent, 'utf8');
+
+    } catch (error) {
+        console.error('Error reading or modifying file:', error);
+    }
+}
+
+module.exports = { parseElementToFile, generateJSXFile, createDir, createReactProject, createVueProject, deleteFolderRecursive,modifyReactAppFile }

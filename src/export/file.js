@@ -25,10 +25,10 @@ fileRouter.post('/', async (req, res) => {
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
-        const folderPath = `../../temp/${getRandomID()}`
+        const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
         await createDir(folderPath)
         generateJSXFile(code, name, folderPath);
-        const filePath = path.join(__dirname, folderPath, `${name}.jsx`);
+        const filePath = path.join(folderPath, `${name}.jsx`);
         const sendFilePromise = () => new Promise((resolve, reject) => {
             res.set({
                 'content-type': 'text/jsx',
@@ -41,7 +41,7 @@ fileRouter.post('/', async (req, res) => {
         });
         await sendFilePromise();
         fs.unlink(filePath, (err) => {
-            if (!err) fs.rmdir(path.join(__dirname, folderPath), () => { })
+            if (!err) fs.rmdir(folderPath, () => { })
         });
     } catch (error) {
         sendFail(res);

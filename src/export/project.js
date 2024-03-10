@@ -4,11 +4,12 @@ const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail, sendData } = require('../../utils/send');
 const { getToken } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
-const { parseElementToFile, createDir, createReactProject } = require('../../utils/file/index')
+const { parseElementToFile, createReactProject, modifyReactAppFile, createDir } = require('../../utils/file/index')
 const { generateJSXFile } = require('../../utils/file')
 const path = require('path');
-const fs = require('fs');
 const { getRandomID } = require('../../utils/randomID');
+const { insertJSON } = require('../../utils/sql/export/createSQL');
+const { toHyphenCase } = require('../../utils/str');
 
 
 
@@ -25,29 +26,24 @@ projectRouter.post('/', async (req, res) => {
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
-        const folderPath = `../../temp/${getRandomID()}`
+        const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
+        await insertJSON(folderPath, name, account)
         sendData(res, null)
         await createDir(folderPath)
-
-
         await createReactProject(name, folderPath)
-        console.log('finish');
-        // fs.unlink(path.join(__dirname, folderPath, `${name}.jsx`), () => { });
+        generateJSXFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
+        modifyReactAppFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
 
-        // await createDir(`${folderPath}/xpress-app/src/component`)
-        // generateJSXFile(code, name, `${folderPath}/xpress-app/src/component`);
-
-        // 修改app.js组件
 
         // 压缩
-
-        // const filePath = path.join(__dirname, folderPath, `${name}.zip`);
+        // const filePath = path.join(folderPath, `${name}.zip`);
 
         // // 递归删除
         // fs.unlink(filePath, (err) => {
         //     if (!err) fs.rmdir(path.join(__dirname, folderPath), () => { })
         // });
     } catch (error) {
+        console.log(error);
         sendFail(res);
     }
 });
