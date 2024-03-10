@@ -4,12 +4,14 @@ const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail, sendData } = require('../../utils/send');
 const { getToken } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
-const { parseElementToFile, createReactProject, modifyReactAppFile, createDir } = require('../../utils/file/index')
+const { parseElementToFile, createReactProject, modifyReactAppFile, createDir, deleteFolderRecursive } = require('../../utils/file/index')
 const { generateJSXFile } = require('../../utils/file')
 const path = require('path');
 const { getRandomID } = require('../../utils/randomID');
-const { insertJSON } = require('../../utils/sql/export/createSQL');
+const { insertFile } = require('../../utils/sql/export/createSQL');
+const { updateIsCreated } = require('../../utils/sql/export/setSQL');
 const { toHyphenCase } = require('../../utils/str');
+const { compressProject } = require('../../utils/zip')
 
 
 
@@ -27,21 +29,17 @@ projectRouter.post('/', async (req, res) => {
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
-        await insertJSON(folderPath, name, account)
+        const { fileID } = await insertFile(folderPath, name, account)
         sendData(res, null)
         await createDir(folderPath)
         await createReactProject(name, folderPath)
         generateJSXFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
-        modifyReactAppFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
+        await modifyReactAppFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
+        compressProject(path.join(folderPath, toHyphenCase(name)), folderPath, toHyphenCase(name))
+        console.log('success');
+        await updateIsCreated(account, fileID)
+        deleteFolderRecursive(path.join(folderPath, toHyphenCase(name)));
 
-
-        // 压缩
-        // const filePath = path.join(folderPath, `${name}.zip`);
-
-        // // 递归删除
-        // fs.unlink(filePath, (err) => {
-        //     if (!err) fs.rmdir(path.join(__dirname, folderPath), () => { })
-        // });
     } catch (error) {
         console.log(error);
         sendFail(res);
