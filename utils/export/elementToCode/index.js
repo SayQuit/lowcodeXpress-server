@@ -1,5 +1,5 @@
-const { parseReactCode } = require('./react')
-const { parseVueCode } = require('./vue')
+const { parseReactCode } = require('./reactCode')
+const { parseVueCode } = require('./vueCode')
 
 async function parseElementToFile(element, name, type, tech, lib, variable, event, props, onload) {
     return new Promise((resolve) => {

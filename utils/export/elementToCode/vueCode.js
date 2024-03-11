@@ -1,5 +1,5 @@
 const prettier = require('prettier');
-const { toCamelCase, transfromConstToVariable } = require('../str');
+const { toCamelCase, transfromConstToVariable } = require('../../str');
 
 const parseVueCode = async (element, name, lib, variable, event, props, onload) => {
   const el = parseVueElement(element, variable, props, event)
