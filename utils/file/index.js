@@ -43,6 +43,15 @@ const createReactProject = async (name, newPath) => {
     }
 };
 
+const buildReactProject = async (path) => {
+    try {
+        const command = `npm run build`;
+        await exec(command, { cwd: path });
+    } catch (error) {
+        console.error('打包React项目时出现错误：', error.message);
+    }
+};
+
 
 const createVueProject = (name, path) => {
     exec('vue --version', (err) => {
@@ -77,9 +86,7 @@ async function modifyReactAppFile(filePath, componentName) {
     try {
 
         const templateContent = fs.readFileSync(path.join(__dirname, './ReactApp.js'), 'utf8')
-
         const modifiedContent = templateContent.replace(`__import__`, `import ${componentName} from '../src/component/${componentName}'`).replace(`__component__`, `<${componentName}></${componentName}>`)
-
         fs.writeFileSync(filePath, modifiedContent, 'utf8');
 
     } catch (error) {
@@ -87,4 +94,4 @@ async function modifyReactAppFile(filePath, componentName) {
     }
 }
 
-module.exports = { parseElementToFile, generateJSXFile, createDir, createReactProject, createVueProject, deleteFolderRecursive, modifyReactAppFile }
+module.exports = { parseElementToFile, generateJSXFile, createDir, createReactProject, createVueProject, deleteFolderRecursive, modifyReactAppFile, buildReactProject }

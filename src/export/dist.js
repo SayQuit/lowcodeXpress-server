@@ -1,10 +1,10 @@
 const express = require('express');
-const projectRouter = express.Router();
+const distRouter = express.Router();
 const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail, sendData } = require('../../utils/send');
 const { getToken } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
-const { parseElementToFile, createReactProject, modifyReactAppFile, createDir, deleteFolderRecursive } = require('../../utils/file/index')
+const { parseElementToFile, createReactProject, modifyReactAppFile, createDir, deleteFolderRecursive, buildReactProject } = require('../../utils/file/index')
 const { generateJSXFile } = require('../../utils/file')
 const path = require('path');
 const { getRandomID } = require('../../utils/randomID');
@@ -15,7 +15,7 @@ const { compressProject } = require('../../utils/zip')
 
 
 
-projectRouter.post('/', async (req, res) => {
+distRouter.post('/', async (req, res) => {
     const { headers } = req;
     const { id } = req.body;
     const token = getToken(headers);
@@ -30,20 +30,21 @@ projectRouter.post('/', async (req, res) => {
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const relativePath = `../../temp/${getRandomID()}`
         const folderPath = path.join(__dirname, relativePath)
-        const { fileID } = await insertFile(relativePath, name, account, 0)
+        const { fileID } = await insertFile(relativePath, name + '_build', account, 1)
         sendData(res, null)
         await createDir(folderPath)
         await createReactProject(name, folderPath)
         generateJSXFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
         await modifyReactAppFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
-        compressProject(path.join(folderPath, toHyphenCase(name)), folderPath, toHyphenCase(name))
+        console.log(folderPath);
+        await buildReactProject(path.join(folderPath, toHyphenCase(name)))
+        compressProject(path.join(folderPath, toHyphenCase(name), 'build'), folderPath, `${toHyphenCase(name)}_build`)
         await updateIsCreated(account, fileID)
         deleteFolderRecursive(path.join(folderPath, toHyphenCase(name)));
-
     } catch (error) {
         console.log(error);
         sendFail(res);
     }
 });
 
-module.exports = projectRouter;
+module.exports = distRouter;
