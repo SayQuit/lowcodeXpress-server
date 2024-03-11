@@ -1,24 +1,24 @@
 const prettier = require('prettier');
 const { toCamelCase, transfromConstToVariable } = require('../str');
 
-const reactTemplate = async (element, name, lib, variable, event, props, onload) => {
-  const el = parseReactElement(element, variable, props, event)
+const parseVueCode = async (element, name, lib, variable, event, props, onload) => {
+  const el = parseVueElement(element, variable, props, event)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
 
   return prettier.format(`
-  ${parseReactImport(getLibComponent())}
+  ${parseVueImport(getLibComponent())}
 
-  function ${name}({${parseReactProps(props)}}) {
-  ${parseReactVariable(variable, props)}
+  function ${name}({${parseVueProps(props)}}) {
+  ${parseVueVariable(variable, props)}
   
 
-  ${parseReactGet()}
+  ${parseVueGet()}
 
-  ${parseReactSet()}
+  ${parseVueSet()}
 
   ${noRequest ? '' : parseRequest()}
 
-  ${parseReactEvent(event)}
+  ${parseVueEvent(event)}
 
 
 
@@ -48,14 +48,14 @@ const getLibComponent = () => {
   return []
 }
 
-const parseReactImport = () => {
+const parseVueImport = () => {
   let res = `
-  import { useState, useEffect } from "react";
+  import { useState, useEffect } from "Vue";
   `
   return res
 }
 
-const parseReactElementText = (item, variable, props) => {
+const parseVueElementText = (item, variable, props) => {
   let text = null
   variable.forEach((v_item) => {
     if (v_item.bindElement === item.id) {
@@ -71,7 +71,7 @@ const parseReactElementText = (item, variable, props) => {
   else return text
 }
 
-const parseReactElementAttribute = (item, variable, props, event) => {
+const parseVueElementAttribute = (item, variable, props, event) => {
   let attr = ''
   if (Object.keys(item.styleObject).length > 0) attr += ` style={${JSON.stringify(item.styleObject)}}`
   const attrArray = []
@@ -109,15 +109,15 @@ const parseReactElementAttribute = (item, variable, props, event) => {
   return attr
 }
 
-const parseReactElement = (element, variable, props, event) => {
+const parseVueElement = (element, variable, props, event) => {
   let res = ''
 
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
       el += `
-        <div${parseReactElementAttribute(item, variable, props, event)}>
-          ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event)}
+        <div${parseVueElementAttribute(item, variable, props, event)}>
+          ${parseVueElementText(item, variable, props) || parseVueElement(item.childrenElement, variable, props, event)}
         </div>
       `
     }
@@ -141,20 +141,20 @@ const parseReactElement = (element, variable, props, event) => {
       })
       el += `
         {${item.circleVariableName}.map((item,index)=>{
-          return <div key={index}${parseReactElementAttribute(item, variable, props, event)}>
-            ${parseReactElement([item.circleElement], variable, props, event)}
+          return <div key={index}${parseVueElementAttribute(item, variable, props, event)}>
+            ${parseVueElement([item.circleElement], variable, props, event)}
           </div>
         })}
         `
     }
     else if (item.type.startsWith('ant-') || item.type.startsWith('eui-')) {
       el += `
-        <${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}></${toCamelCase(item.type)}>
+        <${toCamelCase(item.type)}${parseVueElementAttribute(item, variable, props, event)}></${toCamelCase(item.type)}>
       `
     }
     else {
       el += `
-      <${item.type}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${item.type}>
+      <${item.type}${parseVueElementAttribute(item, variable, props, event)}>${parseVueElementText(item, variable, props) || ''}</${item.type}>
     `
     }
     res += el
@@ -164,7 +164,7 @@ const parseReactElement = (element, variable, props, event) => {
 }
 
 
-const parseReactProps = (props) => {
+const parseVueProps = (props) => {
   let res = ''
   props.forEach((item, index) => {
     res += `${item.name}=${JSON.stringify(item.value)}`;
@@ -173,7 +173,7 @@ const parseReactProps = (props) => {
   return res
 }
 
-const parseReactVariable = (variable, props) => {
+const parseVueVariable = (variable, props) => {
 
   let vStr = ''
   variable.forEach(item => {
@@ -195,7 +195,7 @@ const parseReactVariable = (variable, props) => {
   return res
 }
 
-const parseReactEvent = (event) => {
+const parseVueEvent = (event) => {
   let func = ''
   event.forEach((item) => {
     let fn = ''
@@ -237,7 +237,7 @@ const parseReactEvent = (event) => {
   return func
 }
 
-const parseReactGet = () => {
+const parseVueGet = () => {
   return `
       const get=(key)=>{
         return state[key]
@@ -246,7 +246,7 @@ const parseReactGet = () => {
 }
 
 
-const parseReactSet = () => {
+const parseVueSet = () => {
   return `
       const set=(key,value)=>{
         setState({
@@ -302,4 +302,4 @@ const parseRequest = () => {
   `
 }
 
-module.exports = { reactTemplate };
+module.exports = { parseVueCode };

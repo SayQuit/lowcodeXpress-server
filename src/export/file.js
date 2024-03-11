@@ -4,11 +4,13 @@ const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail } = require('../../utils/send');
 const { getToken } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
-const { parseElementToFile, createDir } = require('../../utils/file/index')
-const { generateJSXFile } = require('../../utils/file')
 const path = require('path');
 const fs = require('fs');
 const { getRandomID } = require('../../utils/randomID');
+const { parseElementToFile } = require('../../utils/export/metaToCode');
+const { generateFile } = require('../../utils/export/fileGenerator');
+const { createDir } = require('../../utils/export/dir');
+
 
 
 
@@ -27,7 +29,7 @@ fileRouter.post('/', async (req, res) => {
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
         await createDir(folderPath)
-        generateJSXFile(code, name, folderPath);
+        generateFile(code, name, folderPath);
         const filePath = path.join(folderPath, `${name}.jsx`);
         const sendFilePromise = () => new Promise((resolve, reject) => {
             res.set({

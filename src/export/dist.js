@@ -4,14 +4,18 @@ const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail, sendData } = require('../../utils/send');
 const { getToken } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
-const { parseElementToFile, createReactProject, modifyReactAppFile, createDir, deleteFolderRecursive, buildReactProject } = require('../../utils/file/index')
-const { generateJSXFile } = require('../../utils/file')
 const path = require('path');
 const { getRandomID } = require('../../utils/randomID');
 const { insertFile } = require('../../utils/sql/export/createSQL');
 const { updateIsCreated } = require('../../utils/sql/export/setSQL');
 const { toHyphenCase } = require('../../utils/str');
-const { compressProject } = require('../../utils/zip')
+const { compressProject } = require('../../utils/zip');
+const { parseElementToFile } = require('../../utils/export/metaToCode');
+const { deleteDirRecursive, createDir } = require('../../utils/export/dir');
+const { createProject } = require('../../utils/export/createProject');
+const { generateFile } = require('../../utils/export/fileGenerator');
+const { buildProject } = require('../../utils/export/buildProject');
+const { modifyFile } = require('../../utils/export/modifyFile');
 
 
 
@@ -33,14 +37,13 @@ distRouter.post('/', async (req, res) => {
         const { fileID } = await insertFile(relativePath, name + '_build', account, 1)
         sendData(res, null)
         await createDir(folderPath)
-        await createReactProject(name, folderPath)
-        generateJSXFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
-        await modifyReactAppFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
-        console.log(folderPath);
-        await buildReactProject(path.join(folderPath, toHyphenCase(name)))
+        await createProject(name, folderPath)
+        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
+        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
+        await buildProject(path.join(folderPath, toHyphenCase(name)))
         compressProject(path.join(folderPath, toHyphenCase(name), 'build'), folderPath, `${toHyphenCase(name)}_build`)
         await updateIsCreated(account, fileID)
-        deleteFolderRecursive(path.join(folderPath, toHyphenCase(name)));
+        deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
     } catch (error) {
         console.log(error);
         sendFail(res);
