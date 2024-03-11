@@ -7,7 +7,7 @@ const { selectJSON } = require('../../utils/sql/project/detailSQL');
 const path = require('path');
 const fs = require('fs');
 const { getRandomID } = require('../../utils/randomID');
-const { parseElementToFile } = require('../../utils/export/metaToCode');
+const { parseElementToFile } = require('../../utils/export/elementToCode');
 const { generateFile } = require('../../utils/export/fileGenerator');
 const { createDir } = require('../../utils/export/dir');
 
