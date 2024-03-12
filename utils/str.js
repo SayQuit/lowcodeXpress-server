@@ -6,17 +6,14 @@ function toHyphenCase(inputString) {
     return inputString.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
-function transfromConstToVariable(arr) {
-    let result = '';
-    for (let i = 0; i < arr.length; i++) {
-        const value = arr[i];
-        if (!isNaN(value)) {
-            result += `[${value}]`;
-        } else {
-            result += (i === 0 ? '' : '.') + value;
-        }
+function capitalizeFirstLetter(str) {
+    // 判断字符串是否为空
+    if (!str) {
+        return str;
     }
-    return `{item.${result}}`;
+
+    // 将第一个字符转换为大写，然后与字符串的其余部分拼接起来
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-module.exports = { toCamelCase, transfromConstToVariable, toHyphenCase }
+module.exports = { toCamelCase, toHyphenCase, capitalizeFirstLetter }

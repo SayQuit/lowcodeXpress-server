@@ -1,5 +1,5 @@
 const prettier = require('prettier');
-const { toCamelCase, transfromConstToVariable } = require('../../str');
+const { toCamelCase } = require('../../str');
 
 const parseReactCode = async (element, name, lib, variable, event, props, onload) => {
   const el = parseReactElement(element, variable, props, event)
@@ -24,7 +24,7 @@ const parseReactCode = async (element, name, lib, variable, event, props, onload
 
 
     useEffect(()=>{
-      ${onload}()
+      ${onload ? onload + '()' : ''}
     },[])
 
     return (
@@ -42,7 +42,18 @@ const parseReactCode = async (element, name, lib, variable, event, props, onload
   });
 }
 
-
+function transfromConstToVariable(arr) {
+  let result = '';
+  for (let i = 0; i < arr.length; i++) {
+    const value = arr[i];
+    if (!isNaN(value)) {
+      result += `[${value}]`;
+    } else {
+      result += (i === 0 ? '' : '.') + value;
+    }
+  }
+  return `{item.${result}}`;
+}
 
 const getLibComponent = () => {
   return []

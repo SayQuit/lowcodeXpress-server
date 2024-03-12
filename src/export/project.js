@@ -37,9 +37,9 @@ projectRouter.post('/', async (req, res) => {
         const { fileID } = await insertFile(relativePath, name, account, 0)
         sendData(res, null)
         await createDir(folderPath)
-        await createProject(name, folderPath)
-        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
-        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
+        await createProject(name, folderPath, tech)
+        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'), tech);
+        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name, tech)
         compressProject(path.join(folderPath, toHyphenCase(name)), folderPath, toHyphenCase(name))
         await updateIsCreated(account, fileID)
         deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));

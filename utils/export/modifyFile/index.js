@@ -1,10 +1,9 @@
-const fs = require('fs');
-const path = require('path');
 const { modifyReactFile } = require('./modifyReact');
 
 
-async function modifyFile(filePath, componentName) {
-    modifyReactFile(filePath, componentName)
+async function modifyFile(filePath, componentName,tech) {
+   if(tech==='react') modifyReactFile(filePath, componentName)
+//    else if(tech==='vue')
 }
 
 module.exports = { modifyFile }

@@ -37,10 +37,10 @@ distRouter.post('/', async (req, res) => {
         const { fileID } = await insertFile(relativePath, name + '_build', account, 1)
         sendData(res, null)
         await createDir(folderPath)
-        await createProject(name, folderPath)
-        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'));
-        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name)
-        await buildProject(path.join(folderPath, toHyphenCase(name)))
+        await createProject(name, folderPath, tech)
+        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'), tech);
+        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name, tech)
+        await buildProject(path.join(folderPath, toHyphenCase(name)), tech)
         compressProject(path.join(folderPath, toHyphenCase(name), 'build'), folderPath, `${toHyphenCase(name)}_build`)
         await updateIsCreated(account, fileID)
         deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));

@@ -29,12 +29,13 @@ fileRouter.post('/', async (req, res) => {
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
         await createDir(folderPath)
-        generateFile(code, name, folderPath);
-        const filePath = path.join(folderPath, `${name}.jsx`);
+        generateFile(code, name, folderPath, tech);
+        const suffix = tech === 'react' ? 'jsx' : 'vue'
+        const filePath = path.join(folderPath, `${name}.${suffix}`);
         const sendFilePromise = () => new Promise((resolve, reject) => {
             res.set({
-                'content-type': 'text/jsx',
-                'Content-Disposition': `attachment; filename=${name}.jsx`,
+                'content-type': tech === 'react' ? 'text/jsx' : 'application/javascript',
+                'Content-Disposition': `attachment; filename=${name}.${suffix}`,
             });
             res.sendFile(filePath, (err) => {
                 if (err) reject(err);
@@ -46,6 +47,7 @@ fileRouter.post('/', async (req, res) => {
             if (!err) fs.rmdir(folderPath, () => { })
         });
     } catch (error) {
+        console.log(error);
         sendFail(res);
     }
 });
