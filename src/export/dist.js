@@ -35,11 +35,13 @@ distRouter.post('/', async (req, res) => {
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const relativePath = `../../temp/${getRandomID()}`
         const folderPath = path.join(__dirname, relativePath)
-        const { fileID } = await insertFile(relativePath, name + '_build', account, 1)
-        sendData(res, null)
+
         const componentFolader = tech === 'react' ? 'component' : 'components'
         const appName = tech === 'react' ? 'App.js' : 'App.vue'
         const buildFolderName = tech === 'react' ? 'build' : 'dist'
+        
+        const { fileID } = await insertFile(relativePath, name + `_${buildFolderName}`, account, 1)
+        sendData(res, null)
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));
