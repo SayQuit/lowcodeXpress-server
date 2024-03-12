@@ -9,7 +9,7 @@ const createDir = (folderPath) => {
         });
     })
 }
-function deleteDirRecursive(folderPath) {
+async function deleteDirRecursive(folderPath) {
     if (fs.existsSync(folderPath)) {
         fs.readdirSync(folderPath).forEach((file, index) => {
             const curPath = path.join(folderPath, file);

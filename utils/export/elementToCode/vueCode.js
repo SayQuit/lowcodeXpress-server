@@ -132,7 +132,6 @@ const parseVueElement = (element, variable, props, event) => {
     }
     else if (item.type === 'container') { }
     else if (item.type === 'circle') {
-      console.log(JSON.stringify(item));
       item.target.forEach((t_item) => {
         [...props, ...variable].forEach(v_item => {
           if (v_item.name === item.circleVariableName) {

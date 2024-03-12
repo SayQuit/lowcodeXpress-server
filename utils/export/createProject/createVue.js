@@ -3,21 +3,13 @@ const util = require('util');
 
 const exec = util.promisify(require('child_process').exec);
 
-const createVueProject = async (name, path) => {
-    exec('vue --version', (err) => {
-        if (err) {
-            console.error('请确保已经安装vue');
-            return;
-        }
-
-        const command = `vue create ${toHyphenCase(name)}`;
-        const options = {
-            cwd: path.resolve(path || process.cwd()),
-            stdio: 'inherit',
-        };
-
-        exec(command, options, () => { });
-    });
+const createVueProject = async (name, newPath) => {
+    try {
+        const command = `vue create ${toHyphenCase(name)} --default`;
+        await exec(command, { cwd: newPath });
+    } catch (error) {
+        console.error('创建React项目时出现错误：', error.message);
+    }
 };
 
 module.exports = { createVueProject }

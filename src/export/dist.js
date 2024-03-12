@@ -15,7 +15,7 @@ const { deleteDirRecursive, createDir } = require('../../utils/export/dir');
 const { createProject } = require('../../utils/export/createProject');
 const { generateFile } = require('../../utils/export/fileGenerator');
 const { buildProject } = require('../../utils/export/buildProject');
-const { modifyFile } = require('../../utils/export/modifyFile');
+const { modifyFile, modifyConfig } = require('../../utils/export/modifyFile');
 
 
 
@@ -27,6 +27,7 @@ distRouter.post('/', async (req, res) => {
     if (!token || !id) return sendFail(res);
 
     try {
+
         const userRow = await selectUser(token);
         const { account } = userRow;
         const detailRow = await selectJSON(account, id);
@@ -36,14 +37,19 @@ distRouter.post('/', async (req, res) => {
         const folderPath = path.join(__dirname, relativePath)
         const { fileID } = await insertFile(relativePath, name + '_build', account, 1)
         sendData(res, null)
+        const componentFolader = tech === 'react' ? 'component' : 'components'
+        const appName = tech === 'react' ? 'App.js' : 'App.vue'
+        const buildFolderName = tech === 'react' ? 'build' : 'dist'
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
-        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'), tech);
-        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name, tech)
+        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));
+        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
+        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
+        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech)
         await buildProject(path.join(folderPath, toHyphenCase(name)), tech)
-        compressProject(path.join(folderPath, toHyphenCase(name), 'build'), folderPath, `${toHyphenCase(name)}_build`)
+        compressProject(path.join(folderPath, toHyphenCase(name), buildFolderName), folderPath, `${toHyphenCase(name)}_${buildFolderName}`)
         await updateIsCreated(account, fileID)
-        deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
+        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
     } catch (error) {
         console.log(error);
         sendFail(res);

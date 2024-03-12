@@ -14,7 +14,7 @@ const { createProject } = require('../../utils/export/createProject');
 const { parseElementToFile } = require('../../utils/export/elementToCode');
 const { generateFile } = require('../../utils/export/fileGenerator');
 const { deleteDirRecursive, createDir } = require('../../utils/export/dir');
-const { modifyFile } = require('../../utils/export/modifyFile');
+const { modifyFile, modifyConfig } = require('../../utils/export/modifyFile');
 
 
 
@@ -36,13 +36,17 @@ projectRouter.post('/', async (req, res) => {
         const folderPath = path.join(__dirname, relativePath)
         const { fileID } = await insertFile(relativePath, name, account, 0)
         sendData(res, null)
+        const componentFolader = tech === 'react' ? 'component' : 'components'
+        const appName= tech === 'react' ? 'App.js' : 'App.vue'
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
-        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', 'component'), tech);
-        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', 'App.js'), name, tech)
+        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name),'src','components'));
+        generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
+        await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
+        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech)
         compressProject(path.join(folderPath, toHyphenCase(name)), folderPath, toHyphenCase(name))
         await updateIsCreated(account, fileID)
-        deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
+        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
 
     } catch (error) {
         console.log(error);
