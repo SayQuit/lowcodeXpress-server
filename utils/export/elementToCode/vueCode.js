@@ -49,7 +49,8 @@ function transfromConstToVariable(arr) {
       result += (i === 0 ? '' : '.') + value;
     }
   }
-  return `{{item.${result}}}`;
+  if (result) return `{{item.${result}}}`;
+  else return `{{item}}`;
 }
 
 const getLibComponent = () => {
@@ -111,7 +112,7 @@ const parseVueElementAttribute = (item, variable, props, event) => {
         attr += ` ${key}=${item.attr[key]}`
       // #0 由circle父元素修改变量名称
       else
-      attr += ` ${key}=${JSON.stringify(item.attr[key])}`
+        attr += ` ${key}=${JSON.stringify(item.attr[key])}`
       attrArray.push(key)
     }
   }

@@ -52,7 +52,8 @@ function transfromConstToVariable(arr) {
       result += (i === 0 ? '' : '.') + value;
     }
   }
-  return `{item.${result}}`;
+  if (result) return `{item.${result}}`;
+  else return `{item}`;
 }
 
 const getLibComponent = () => {
