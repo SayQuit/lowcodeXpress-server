@@ -127,8 +127,7 @@ const parseReactElement = (element, variable, props, event) => {
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
-      el += `
-        <div${parseReactElementAttribute(item, variable, props, event)}>
+      el += `<div${parseReactElementAttribute(item, variable, props, event)}>
           ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event)}
         </div>
       `
@@ -151,22 +150,20 @@ const parseReactElement = (element, variable, props, event) => {
         }
         current[keys[keys.length - 1]] = transfromConstToVariable(t_item.fromArray);
       })
-      el += `
+      if(item.circleElement.attr)item.circleElement.attr['key'] = 'index'
+      el += `<div${parseReactElementAttribute(item, variable, props, event)}>
         {${item.circleVariableName}.map((item,index)=>{
-          return <div key={index}${parseReactElementAttribute(item, variable, props, event)}>
-            ${parseReactElement([item.circleElement], variable, props, event)}
-          </div>
-        })}
+          return ${parseReactElement([item.circleElement], variable, props, event)}
+          })}
+        </div>
         `
     }
     else if (item.type.startsWith('ant-') || item.type.startsWith('eui-')) {
-      el += `
-        <${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}></${toCamelCase(item.type)}>
+      el += `<${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}></${toCamelCase(item.type)}>
       `
     }
     else {
-      el += `
-      <${item.type}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${item.type}>
+      el += `<${item.type}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${item.type}>
     `
     }
     res += el
