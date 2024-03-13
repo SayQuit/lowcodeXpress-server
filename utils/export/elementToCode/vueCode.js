@@ -150,8 +150,10 @@ const parseVueElement = (element, variable, props, event) => {
         // #0 由circle父元素修改变量名称
       })
       el += `
-          <div v-for="(item,index) in state.${item.circleVariableName}" :key="index"${parseVueElementAttribute(item, variable, props, event)}>
-            ${parseVueElement([item.circleElement], variable, props, event)}
+          <div${parseVueElementAttribute(item, variable, props, event)}>
+            <template v-for="(item,index) in state.${item.circleVariableName}" :key="index">
+              ${parseVueElement([item.circleElement], variable, props, event)}
+            </template>
           </div>
         `
     }
