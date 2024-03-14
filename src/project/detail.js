@@ -18,7 +18,9 @@ detailRouter.post('/', async (req, res) => {
         const tags = []
         if (type) tags.push(type)
         if (tech) tags.push(tech)
-        const dragGroup = ['basic']
+        let dragGroup
+        if (tech !== 'wechat mini program') dragGroup = []
+        else dragGroup = ['basic']
         if (type) dragGroup.push(type)
         if (tech) dragGroup.push(tech)
         sendData(res, {
@@ -35,7 +37,7 @@ detailRouter.post('/', async (req, res) => {
             dragGroup: [...dragGroup, ...lib],
             variable,
             event,
-            props, 
+            props,
             onload
         })
     } catch (error) {
