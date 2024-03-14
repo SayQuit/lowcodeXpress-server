@@ -15,6 +15,7 @@ const { parseElementToFile } = require('../../utils/export/elementToCode');
 const { generateFile } = require('../../utils/export/fileGenerator');
 const { deleteDirRecursive, createDir } = require('../../utils/export/dir');
 const { modifyFile, modifyConfig } = require('../../utils/export/modifyFile');
+const { installLib } = require('../../utils/export/libInstall');
 
 
 
@@ -36,13 +37,14 @@ projectRouter.post('/', async (req, res) => {
         const folderPath = path.join(__dirname, relativePath)
 
         const componentFolader = tech === 'react' ? 'component' : 'components'
-        const appName= tech === 'react' ? 'App.js' : 'App.vue'
-        
+        const appName = tech === 'react' ? 'App.js' : 'App.vue'
+
         const { fileID } = await insertFile(relativePath, name, account, 0)
         sendData(res, null)
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
-        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name),'src','components'));
+        await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));
+        await installLib(lib, tech, path.join(folderPath, toHyphenCase(name)))
         generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
         await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
         await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech)

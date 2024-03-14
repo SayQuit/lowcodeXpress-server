@@ -2,11 +2,12 @@ const prettier = require('prettier');
 const { toCamelCase } = require('../../str');
 
 const parseReactCode = async (element, name, lib, variable, event, props, onload) => {
-  const el = parseReactElement(element, variable, props, event)
+  const component = []
+  const el = parseReactElement(element, variable, props, event, component)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
 
   return prettier.format(`
-  ${parseReactImport(getLibComponent())}
+  ${parseReactImport(component, lib)}
 
   function ${name}({${parseReactProps(props)}}) {
   ${parseReactVariable(variable, props)}
@@ -56,14 +57,18 @@ function transfromConstToVariable(arr) {
   else return `{item}`;
 }
 
-const getLibComponent = () => {
-  return []
-}
-
-const parseReactImport = () => {
+const parseReactImport = (component, lib) => {
   let res = `
   import { useState, useEffect } from "react";
   `
+  if (component.length) {
+    if (lib.includes('ant-design')) {
+      res += `import {
+        ${component.map(item => { return item.name + ' as ' + item.asName }).join(`,
+      `)}
+      } from 'antd';`
+    }
+  }
   return res
 }
 
@@ -121,14 +126,14 @@ const parseReactElementAttribute = (item, variable, props, event) => {
   return attr
 }
 
-const parseReactElement = (element, variable, props, event) => {
+const parseReactElement = (element, variable, props, event, component) => {
   let res = ''
 
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
-          ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event)}
+          ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event, component)}
         </div>
       `
     }
@@ -150,16 +155,21 @@ const parseReactElement = (element, variable, props, event) => {
         }
         current[keys[keys.length - 1]] = transfromConstToVariable(t_item.fromArray);
       })
-      if(item.circleElement.attr)item.circleElement.attr['key'] = 'index'
+      if (item.circleElement.attr) item.circleElement.attr['key'] = 'index'
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
         {${item.circleVariableName}.map((item,index)=>{
-          return ${parseReactElement([item.circleElement], variable, props, event)}
+          return ${parseReactElement([item.circleElement], variable, props, event, component)}
           })}
         </div>
         `
     }
     else if (item.type.startsWith('ant-') || item.type.startsWith('eui-')) {
-      el += `<${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}></${toCamelCase(item.type)}>
+      const name = item.type.split('-')[1]
+      component.push({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        asName: toCamelCase(item.type)
+      })
+      el += `<${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${toCamelCase(item.type)}>
       `
     }
     else {

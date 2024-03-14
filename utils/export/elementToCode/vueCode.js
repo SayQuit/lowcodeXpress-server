@@ -2,7 +2,8 @@ const prettier = require('prettier');
 const { toCamelCase, capitalizeFirstLetter } = require('../../str');
 
 const parseVueCode = async (element, name, lib, variable, event, props, onload) => {
-  const el = parseVueElement(element, variable, props, event)
+  const component = []
+  const el = parseVueElement(element, variable, props, event, component)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
   return prettier.format(`
     <template>
@@ -12,7 +13,7 @@ const parseVueCode = async (element, name, lib, variable, event, props, onload) 
     </template>
 
     <script setup>
-      ${parseVueImport(getLibComponent())}
+      ${parseVueImport(component, lib)}
 
       ${parseVueProps(props)}
 
@@ -53,14 +54,18 @@ function transfromConstToVariable(arr) {
   else return `{{item}}`;
 }
 
-const getLibComponent = () => {
-  return []
-}
-
-const parseVueImport = () => {
+const parseVueImport = (component, lib) => {
   let res = `
   import { ref, onMounted, defineProps } from 'vue';
   `
+  if (component.length) {
+    if (lib.includes('ant-design')) {
+      res += `import {
+        ${component.map(item => { return item.name + ' as ' + item.asName }).join(`,
+      `)}
+      } from 'ant-design-vue';`
+    }
+  }
   return res
 }
 
@@ -112,14 +117,14 @@ const parseVueElementAttribute = (item, variable, props, event) => {
         attr += ` ${key}=${item.attr[key]}`
       // #0 由circle父元素修改变量名称
       else
-        attr += ` ${key}=${JSON.stringify(item.attr[key])}`
+        attr += ` :${key}='${JSON.stringify(item.attr[key])}'`
       attrArray.push(key)
     }
   }
   return attr
 }
 
-const parseVueElement = (element, variable, props, event) => {
+const parseVueElement = (element, variable, props, event, component) => {
   let res = ''
 
   element.forEach((item) => {
@@ -127,7 +132,7 @@ const parseVueElement = (element, variable, props, event) => {
     if (item.type === 'nest') {
       el += `
         <div${parseVueElementAttribute(item, variable, props, event)}>
-          ${parseVueElementText(item, variable, props) || parseVueElement(item.childrenElement, variable, props, event)}
+          ${parseVueElementText(item, variable, props) || parseVueElement(item.childrenElement, variable, props, event, component)}
         </div>
       `
     }
@@ -152,14 +157,19 @@ const parseVueElement = (element, variable, props, event) => {
       el += `
           <div${parseVueElementAttribute(item, variable, props, event)}>
             <template v-for="(item,index) in state.${item.circleVariableName}" :key="index">
-              ${parseVueElement([item.circleElement], variable, props, event)}
+              ${parseVueElement([item.circleElement], variable, props, event, component)}
             </template>
           </div>
         `
     }
     else if (item.type.startsWith('ant-') || item.type.startsWith('eui-')) {
+      const name = item.type.split('-')[1]
+      component.push({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        asName: toCamelCase(item.type)
+      })
       el += `
-        <${toCamelCase(item.type)}${parseVueElementAttribute(item, variable, props, event)}>
+        <${toCamelCase(item.type)}${parseVueElementAttribute(item, variable, props, event)}>${parseVueElementText(item, variable, props) || ''}</${toCamelCase(item.type)}>
       `
     }
     else {

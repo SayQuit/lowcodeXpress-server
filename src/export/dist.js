@@ -16,6 +16,7 @@ const { createProject } = require('../../utils/export/createProject');
 const { generateFile } = require('../../utils/export/fileGenerator');
 const { buildProject } = require('../../utils/export/buildProject');
 const { modifyFile, modifyConfig } = require('../../utils/export/modifyFile');
+const { installLib } = require('../../utils/export/libInstall');
 
 
 
@@ -39,11 +40,12 @@ distRouter.post('/', async (req, res) => {
         const componentFolader = tech === 'react' ? 'component' : 'components'
         const appName = tech === 'react' ? 'App.js' : 'App.vue'
         const buildFolderName = tech === 'react' ? 'build' : 'dist'
-        
+
         const { fileID } = await insertFile(relativePath, name + `_${buildFolderName}`, account, 1)
         sendData(res, null)
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
+        await installLib(lib, tech, path.join(folderPath, toHyphenCase(name)))
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));
         generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
         await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
@@ -53,7 +55,6 @@ distRouter.post('/', async (req, res) => {
         await updateIsCreated(account, fileID)
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
     } catch (error) {
-        console.log(error);
         sendFail(res);
     }
 });
