@@ -3,11 +3,12 @@ const { toCamelCase } = require('../../str');
 
 const parseReactCode = async (element, name, lib, variable, event, props, onload) => {
   const component = []
-  const el = parseReactElement(element, variable, props, event, component)
+  const echartsElement = []
+  const el = parseReactElement(element, variable, props, event, component, echartsElement)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
 
   return prettier.format(`
-  ${parseReactImport(component, lib)}
+  ${parseReactImport(component, lib, echartsElement)}
 
   function ${name}({${parseReactProps(props)}}) {
   ${parseReactVariable(variable, props)}
@@ -18,6 +19,8 @@ const parseReactCode = async (element, name, lib, variable, event, props, onload
   ${parseReactSet()}
 
   ${noRequest ? '' : parseRequest()}
+
+  ${parseReactEcharts(echartsElement) || ''}
 
   ${parseReactEvent(event)}
 
@@ -57,9 +60,9 @@ function transfromConstToVariable(arr) {
   else return `{item}`;
 }
 
-const parseReactImport = (component, lib) => {
+const parseReactImport = (component, lib, echartsElement) => {
   let res = `
-  import { useState, useEffect } from "react";
+  import { useState, useEffect, useMemo, useRef } from "react";
   `
   if (component.length) {
     if (lib.includes('ant-design')) {
@@ -68,6 +71,9 @@ const parseReactImport = (component, lib) => {
       `)}
       } from 'antd';`
     }
+  }
+  if (echartsElement.length) {
+    res += `import * as echarts from 'echarts';`
   }
   return res
 }
@@ -126,14 +132,14 @@ const parseReactElementAttribute = (item, variable, props, event) => {
   return attr
 }
 
-const parseReactElement = (element, variable, props, event, component) => {
+const parseReactElement = (element, variable, props, event, component, echartsElement) => {
   let res = ''
 
   element.forEach((item) => {
     let el = ''
     if (item.type === 'nest') {
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
-          ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event, component)}
+          ${parseReactElementText(item, variable, props) || parseReactElement(item.childrenElement, variable, props, event, component, echartsElement)}
         </div>
       `
     }
@@ -158,7 +164,7 @@ const parseReactElement = (element, variable, props, event, component) => {
       if (item.circleElement.attr) item.circleElement.attr['key'] = 'index'
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
         {${item.circleVariableName}.map((item,index)=>{
-          return ${parseReactElement([item.circleElement], variable, props, event, component)}
+          return ${parseReactElement([item.circleElement], variable, props, event, component, echartsElement)}
           })}
         </div>
         `
@@ -171,6 +177,11 @@ const parseReactElement = (element, variable, props, event, component) => {
       })
       el += `<${toCamelCase(item.type)}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${toCamelCase(item.type)}>
       `
+    }
+    else if (item.type.startsWith('echarts-')) {
+      el += `<div ref={echartsRef${echartsElement.length}} style={${JSON.stringify(item.styleObject)}}></div>
+      `
+      echartsElement.push(item)
     }
     else {
       el += `<${item.type}${parseReactElementAttribute(item, variable, props, event)}>${parseReactElementText(item, variable, props) || ''}</${item.type}>
@@ -321,4 +332,30 @@ const parseRequest = () => {
   `
 }
 
+
+const parseReactEcharts = (echartsElement) => {
+  let res = ''
+  if (echartsElement.length === 0) return res
+  echartsElement.forEach((item, index) => {
+    const option = item.attr.option
+    option.series[0]._replace_y = "#"
+    option.xAxis._replace_x = "#"
+    const y = item.bindYElement ? `data:state.${item.bindYElement}` : ''
+    const x = item.bindXElement ? `data:state.${item.bindXElement}` : ''
+    res += `
+    const echartsRef${index} = useRef(null);
+    const echartsOptions${index}=useMemo(()=>{
+      return ${JSON.stringify(option)
+        .replace('"_replace_y":"#"', y)
+        .replace('"_replace_x":"#"', x)}
+    },[state])
+    useEffect(()=>{
+      let chart = echarts.init(echartsRef${index}.current);
+      chart.setOption(echartsOptions${index});
+    },[echartsOptions${index}])
+
+    `
+  })
+  return res
+}
 module.exports = { parseReactCode };

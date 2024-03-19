@@ -47,7 +47,7 @@ projectRouter.post('/', async (req, res) => {
         await installLib(lib, tech, path.join(folderPath, toHyphenCase(name)))
         generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
         await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
-        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech)
+        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech, name)
         compressProject(path.join(folderPath, toHyphenCase(name)), folderPath, toHyphenCase(name))
         await updateIsCreated(account, fileID)
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));

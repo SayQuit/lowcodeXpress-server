@@ -3,7 +3,8 @@ const { toCamelCase, capitalizeFirstLetter } = require('../../str');
 
 const parseVueCode = async (element, name, lib, variable, event, props, onload) => {
   const component = []
-  const el = parseVueElement(element, variable, props, event, component)
+  const echartsElement = []
+  const el = parseVueElement(element, variable, props, event, component, echartsElement)
   const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
   return prettier.format(`
     <template>
@@ -13,7 +14,7 @@ const parseVueCode = async (element, name, lib, variable, event, props, onload) 
     </template>
 
     <script setup>
-      ${parseVueImport(component, lib)}
+      ${parseVueImport(component, lib, echartsElement)}
 
       ${parseVueProps(props)}
 
@@ -25,6 +26,8 @@ const parseVueCode = async (element, name, lib, variable, event, props, onload) 
 
       ${noRequest ? '' : parseRequest()}
       
+      ${parseVueEcharts(echartsElement) || ''}
+
       ${parseVueEvent(event)}
 
       onMounted(()=>{ ${onload ? onload + '()' : ''} })
@@ -54,10 +57,14 @@ function transfromConstToVariable(arr) {
   else return `{{item}}`;
 }
 
-const parseVueImport = (component, lib) => {
+const parseVueImport = (component, lib, echartsElement) => {
   let res = `
   import { ref, onMounted, defineProps } from 'vue';
   `
+  if (echartsElement.length) {
+    res = ` import { ref, onMounted, defineProps, watch, computed, nextTick } from 'vue';`
+    res += `import * as echarts from 'echarts';`
+  }
   if (component.length) {
     if (lib.includes('ant-design')) {
       res += `import {
@@ -124,7 +131,7 @@ const parseVueElementAttribute = (item, variable, props, event) => {
   return attr
 }
 
-const parseVueElement = (element, variable, props, event, component) => {
+const parseVueElement = (element, variable, props, event, component, echartsElement) => {
   let res = ''
 
   element.forEach((item) => {
@@ -132,7 +139,7 @@ const parseVueElement = (element, variable, props, event, component) => {
     if (item.type === 'nest') {
       el += `
         <div${parseVueElementAttribute(item, variable, props, event)}>
-          ${parseVueElementText(item, variable, props) || parseVueElement(item.childrenElement, variable, props, event, component)}
+          ${parseVueElementText(item, variable, props) || parseVueElement(item.childrenElement, variable, props, event, component, echartsElement)}
         </div>
       `
     }
@@ -157,7 +164,7 @@ const parseVueElement = (element, variable, props, event, component) => {
       el += `
           <div${parseVueElementAttribute(item, variable, props, event)}>
             <template v-for="(item,index) in state.${item.circleVariableName}" :key="index">
-              ${parseVueElement([item.circleElement], variable, props, event, component)}
+              ${parseVueElement([item.circleElement], variable, props, event, component, echartsElement)}
             </template>
           </div>
         `
@@ -171,6 +178,11 @@ const parseVueElement = (element, variable, props, event, component) => {
       el += `
         <${toCamelCase(item.type)}${parseVueElementAttribute(item, variable, props, event)}>${parseVueElementText(item, variable, props) || ''}</${toCamelCase(item.type)}>
       `
+    }
+    else if (item.type.startsWith('echarts-')) {
+      el += `<div ref="echartsRef${echartsElement.length}" style="${item.style}"></div>
+      `
+      echartsElement.push(item)
     }
     else {
       el += `<${item.type}${parseVueElementAttribute(item, variable, props, event)}> `
@@ -275,7 +287,7 @@ const parseVueSet = () => {
   return `
 const set = (key, value) => {
   state.value = {
-    ...state,
+    ...state.value,
     [key]: value
   }
 }
@@ -333,5 +345,31 @@ const transformToVueEvent = (reactEvent) => {
     case 'onClick':
       return 'click'
   }
+}
+const parseVueEcharts = (echartsElement) => {
+  let res = ''
+  if (echartsElement.length === 0) return res
+  echartsElement.forEach((item, index) => {
+    const option = item.attr.option
+    option.series[0]._replace_y = "#"
+    option.xAxis._replace_x = "#"
+    const y = item.bindYElement ? `data:state.value.${item.bindYElement}` : ''
+    const x = item.bindXElement ? `data:state.value.${item.bindXElement}` : ''
+    res += `
+    const echartsRef${index} = ref(null);
+    const echartsOptions${index}=computed(()=>{
+      return ${JSON.stringify(option)
+        .replace('"_replace_y":"#"', y)
+        .replace('"_replace_x":"#"', x)}
+    })
+    watch(() =>echartsOptions${index}.value,async(newValue)=>{
+      await nextTick();
+      let chart = echarts.init(echartsRef${index}.value);
+      chart.setOption(newValue);
+    }, { immediate: true })
+
+    `
+  })
+  return res
 }
 module.exports = { parseVueCode };

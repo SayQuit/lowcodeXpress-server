@@ -49,7 +49,7 @@ distRouter.post('/', async (req, res) => {
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));
         generateFile(code, name, path.join(folderPath, toHyphenCase(name), 'src', componentFolader), tech);
         await modifyFile(path.join(folderPath, toHyphenCase(name), 'src', appName), name, tech)
-        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech)
+        await modifyConfig(path.join(folderPath, toHyphenCase(name), 'package.json'), tech, name)
         await buildProject(path.join(folderPath, toHyphenCase(name)), tech)
         compressProject(path.join(folderPath, toHyphenCase(name), buildFolderName), folderPath, `${toHyphenCase(name)}_${buildFolderName}`)
         await updateIsCreated(account, fileID)

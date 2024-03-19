@@ -9,11 +9,11 @@ async function modifyFile(filePath, componentName, tech) {
    else if (tech === 'vue') await modifyVueFile(filePath, componentName)
 }
 
-async function modifyConfig(filePath, tech) {
+async function modifyConfig(filePath, tech, name) {
    if (tech === 'vue') {
       try {
          const templateContent = fs.readFileSync(path.join(__dirname, './VuePackage.json'), 'utf8')
-         fs.writeFileSync(filePath, templateContent, 'utf8');
+         fs.writeFileSync(filePath, templateContent.replace("xpress-edit-app", name), 'utf8');
       } catch (error) {
          console.error('Error reading or modifying file:', error);
       }

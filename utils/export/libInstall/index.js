@@ -6,14 +6,15 @@ const installLib = async (lib, tech, installPath) => {
         if (tech === 'react') await installAntd(installPath, 'antd')
         else if (tech === 'vue') await installAntd(installPath, 'ant-design-vue')
     }
+    if (lib.includes('echarts')) {
+        await installAntd(installPath, 'echarts')
+    }
 };
 
 const installAntd = async (installPath, name) => {
     try {
-        console.log( `npm install ${name}`);
         const command = `npm install ${name}`;
         await exec(command, { cwd: installPath });
-        console.log('success');
     } catch (error) {
         console.error('下载antd项目时出现错误：', error.message);
     }
