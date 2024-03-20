@@ -25,7 +25,6 @@ async function generateWechatMiniProgramFile(code, name, folderPath) {
     fs.writeFileSync(wxssPath, '');
     fs.writeFileSync(jsPath, javsScript);
     fs.writeFileSync(jsonPath, `{"component": true,"usingComponents": {}}`);
-    console.log('gen end');
 }
 
 module.exports = { generateWechatMiniProgramFile }

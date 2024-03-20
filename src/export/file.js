@@ -51,7 +51,6 @@ fileRouter.post('/', async (req, res) => {
         }
         else if (type === 'wechat mini program') {
             compressProject(path.join(folderPath, name), folderPath, name)
-            console.log('compressProject end');
             const sendFilePromise = () => new Promise((resolve, reject) => {
                 res.set({
                     'content-type': 'application/x-zip-compressed',
