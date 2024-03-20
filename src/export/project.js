@@ -32,6 +32,9 @@ projectRouter.post('/', async (req, res) => {
         const { account } = userRow;
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
+        console.log(!['react', 'vue'].includes(tech));
+        if (!['react', 'vue'].includes(tech)) return sendFail(res)
+        sendData(res, null)
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const relativePath = `../../temp/${getRandomID()}`
         const folderPath = path.join(__dirname, relativePath)
@@ -40,7 +43,6 @@ projectRouter.post('/', async (req, res) => {
         const appName = tech === 'react' ? 'App.js' : 'App.vue'
 
         const { fileID } = await insertFile(relativePath, name, account, 0)
-        sendData(res, null)
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name), 'src', 'components'));

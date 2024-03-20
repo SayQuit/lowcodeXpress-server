@@ -33,6 +33,8 @@ distRouter.post('/', async (req, res) => {
         const { account } = userRow;
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
+        if (!['react', 'vue'].includes(tech)) return sendFail(res)
+        sendData(res, null)
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const relativePath = `../../temp/${getRandomID()}`
         const folderPath = path.join(__dirname, relativePath)
@@ -42,7 +44,6 @@ distRouter.post('/', async (req, res) => {
         const buildFolderName = tech === 'react' ? 'build' : 'dist'
 
         const { fileID } = await insertFile(relativePath, name + `_${buildFolderName}`, account, 1)
-        sendData(res, null)
         await createDir(folderPath)
         await createProject(name, folderPath, tech)
         await installLib(lib, tech, path.join(folderPath, toHyphenCase(name)))
