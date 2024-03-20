@@ -1,4 +1,3 @@
-const { deleteDirRecursive } = require('../dir');
 const { modifyReactFile } = require('./modifyReact');
 const { modifyVueFile } = require('./modifyVue');
 const fs = require('fs');
@@ -7,6 +6,7 @@ const path = require('path');
 async function modifyFile(filePath, componentName, tech) {
    if (tech === 'react') await modifyReactFile(filePath, componentName)
    else if (tech === 'vue') await modifyVueFile(filePath, componentName)
+   else if (tech === 'wechat mini program') await modifyVueFile(filePath, componentName)
 }
 
 async function modifyConfig(filePath, tech, name) {

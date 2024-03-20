@@ -9,7 +9,8 @@ const fs = require('fs');
 const { getRandomID } = require('../../utils/randomID');
 const { parseElementToFile } = require('../../utils/export/elementToCode');
 const { generateFile } = require('../../utils/export/fileGenerator');
-const { createDir } = require('../../utils/export/dir');
+const { createDir, deleteDirRecursive } = require('../../utils/export/dir');
+const { compressProject } = require('../../utils/zip');
 
 
 
@@ -29,23 +30,45 @@ fileRouter.post('/', async (req, res) => {
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
         const folderPath = path.join(__dirname, `../../temp/${getRandomID()}`)
         await createDir(folderPath)
-        generateFile(code, name, folderPath, tech);
-        const suffix = tech === 'react' ? 'jsx' : 'vue'
-        const filePath = path.join(folderPath, `${name}.${suffix}`);
-        const sendFilePromise = () => new Promise((resolve, reject) => {
-            res.set({
-                'content-type': tech === 'react' ? 'text/jsx' : 'application/javascript',
-                'Content-Disposition': `attachment; filename=${name}.${suffix}`,
+        await generateFile(code, name, folderPath, tech || type);
+        if (['react', 'vue'].includes(tech)) {
+            const suffix = tech === 'react' ? 'jsx' : 'vue'
+            const filePath = path.join(folderPath, `${name}.${suffix}`);
+            const sendFilePromise = () => new Promise((resolve, reject) => {
+                res.set({
+                    'content-type': tech === 'react' ? 'text/jsx' : 'application/javascript',
+                    'Content-Disposition': `attachment; filename=${name}.${suffix}`,
+                });
+                res.sendFile(filePath, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
             });
-            res.sendFile(filePath, (err) => {
-                if (err) reject(err);
-                else resolve();
+            await sendFilePromise();
+            fs.unlink(filePath, (err) => {
+                if (!err) fs.rmdir(folderPath, () => { })
             });
-        });
-        await sendFilePromise();
-        fs.unlink(filePath, (err) => {
-            if (!err) fs.rmdir(folderPath, () => { })
-        });
+        }
+        else if (type === 'wechat mini program') {
+            compressProject(path.join(folderPath, name), folderPath, name)
+            console.log('compressProject end');
+            const sendFilePromise = () => new Promise((resolve, reject) => {
+                res.set({
+                    'content-type': 'application/x-zip-compressed',
+                    'Content-Disposition': `attachment; filename=${name}.zip`,
+                });
+                res.sendFile(path.join(folderPath, name + '.zip'), async (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                    await deleteDirRecursive(path.join(folderPath, name));
+                    fs.unlink(path.join(folderPath, name + '.zip'), (err) => {
+                        if (!err) fs.rmdir(folderPath, () => { })
+                    });
+                });
+            });
+            await sendFilePromise();
+        }
+        else sendFail(res)
     } catch (error) {
         console.log(error);
         sendFail(res);

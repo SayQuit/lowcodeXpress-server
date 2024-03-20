@@ -21,7 +21,7 @@ app.use('/online', onlineRouter);
 app.use('/export', exportRouter);
 
 app.get('/test', async (_, res) => {
-  
+  console.log(_.query);
   return res.send({
     msg: 'success',
     status: 200,

@@ -32,7 +32,6 @@ projectRouter.post('/', async (req, res) => {
         const { account } = userRow;
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
-        console.log(!['react', 'vue'].includes(tech));
         if (!['react', 'vue'].includes(tech)) return sendFail(res)
         sendData(res, null)
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);
