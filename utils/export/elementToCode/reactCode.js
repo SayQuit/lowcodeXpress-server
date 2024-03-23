@@ -237,7 +237,7 @@ const parseReactEvent = (event) => {
         xhrRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
       `
       if (item.request.set) {
-        fn += `  .then(( res )=>{ const { data }=JSON.parse(res); for(const key in data){ const item=data[key]; if(get(key)) set(key,item) }})
+        fn += `  .then(( res )=>{ const { data }=res; for(const key in data){ const item=data[key]; if(get(key)) set(key,item) }})
         `
       }
       func += `
@@ -311,7 +311,7 @@ const parseRequest = () => {
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(xhr.responseText);
+            resolve(JSON.parse(xhr.responseText));
           } else {
             reject(new Error());
           }

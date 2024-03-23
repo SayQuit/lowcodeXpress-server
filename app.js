@@ -63,7 +63,10 @@ app.get('/test', async (_, res) => {
               "url": ""
           },
       ],
-      "latestDrawing": latestDrawing,
+      "latestDrawing": {
+        "count": 3452,
+        "list": latestDrawing
+    },
       "drawingStatistics": [
           {
               "archiId": "1",
