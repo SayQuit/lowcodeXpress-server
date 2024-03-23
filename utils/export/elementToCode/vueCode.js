@@ -244,7 +244,7 @@ const params = {};
 xhrRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
   `
       if (item.request.set) {
-        fn += `  .then((res) => { const { data } = res; for (const key in data) { const item = data[key]; if (get(key)) set(key, item) } })
+        fn += `  .then((res) => { const { data } = JSON.parse(res); for (const key in data) { const item = data[key]; if (get(key)) set(key, item) } })
   `
       }
       func += `

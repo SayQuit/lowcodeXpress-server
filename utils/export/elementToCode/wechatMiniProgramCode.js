@@ -71,8 +71,8 @@ function transfromConstToVariable(arr) {
       result += (i === 0 ? '' : '.') + value;
     }
   }
-  if (result) return `{item.${result}}`;
-  else return `{item}`;
+  if (result) return `{{item.${result}}}`;
+  else return `{{item}}`;
 }
 
 const parseWechatMiniProgramElementText = (item, variable, props) => {

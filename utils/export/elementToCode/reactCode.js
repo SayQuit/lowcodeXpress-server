@@ -163,7 +163,7 @@ const parseReactElement = (element, variable, props, event, component, echartsEl
       })
       if (item.circleElement.attr) item.circleElement.attr['key'] = 'index'
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
-        {${item.circleVariableName}.map((item,index)=>{
+        {state.${item.circleVariableName}.map((item,index)=>{
           return ${parseReactElement([item.circleElement], variable, props, event, component, echartsElement)}
           })}
         </div>
@@ -237,7 +237,7 @@ const parseReactEvent = (event) => {
         xhrRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
       `
       if (item.request.set) {
-        fn += `  .then(( res )=>{ const { data }=res; for(const key in data){ const item=data[key]; if(get(key)) set(key,item) }})
+        fn += `  .then(( res )=>{ const { data }=JSON.parse(res); for(const key in data){ const item=data[key]; if(get(key)) set(key,item) }})
         `
       }
       func += `
