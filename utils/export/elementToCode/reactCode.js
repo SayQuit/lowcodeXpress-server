@@ -338,16 +338,25 @@ const parseReactEcharts = (echartsElement) => {
   if (echartsElement.length === 0) return res
   echartsElement.forEach((item, index) => {
     const option = item.attr.option
-    option.series[0]._replace_y = "#"
+    option.series[0]._replace_series = "#"
     option.xAxis._replace_x = "#"
+    option.yAxis._replace_y = "#"
+
+    option.yAxis.axisLabel = {}
+    option.yAxis.axisLabel.textStyle = item.attr.echartsStyle
+    option.xAxis.axisLabel = {}
+    option.xAxis.axisLabel.textStyle = item.attr.echartsStyle
+
     const y = item.bindYElement ? `data:state.${item.bindYElement}` : ''
+    const series = item.bindSeriesElement ? `data:state.${item.bindSeriesElement}` : ''
     const x = item.bindXElement ? `data:state.${item.bindXElement}` : ''
     res += `
     const echartsRef${index} = useRef(null);
     const echartsOptions${index}=useMemo(()=>{
       return ${JSON.stringify(option)
         .replace('"_replace_y":"#"', y)
-        .replace('"_replace_x":"#"', x)}
+        .replace('"_replace_x":"#"', x)
+        .replace('"_replace_series":"#"', series)}
     },[state])
     useEffect(()=>{
       let chart = echarts.init(echartsRef${index}.current);
