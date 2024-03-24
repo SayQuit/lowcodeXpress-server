@@ -5,7 +5,6 @@ const parseVueCode = async (element, name, lib, variable, event, props, onload) 
   const component = []
   const echartsElement = []
   const el = parseVueElement(element, variable, props, event, component, echartsElement)
-  const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
   return prettier.format(`
     <template>
       <fragment>
@@ -24,7 +23,7 @@ const parseVueCode = async (element, name, lib, variable, event, props, onload) 
 
       ${parseVueSet()}
 
-      ${noRequest ? '' : parseRequest()}
+      ${parseRequest()}
       
       ${parseVueEcharts(echartsElement) || ''}
 
@@ -291,6 +290,12 @@ const set = (key, value) => {
     [key]: value
   }
 }
+const setState = (newState) => {
+  state.value = {
+    ...state.value,
+    ...newState
+  }
+}
 `
 }
 
@@ -355,14 +360,9 @@ const parseVueEcharts = (echartsElement) => {
     option.xAxis._replace_x = "#"
     option.yAxis._replace_y = "#"
 
-    option.yAxis.axisLabel = {}
-    option.yAxis.axisLabel.textStyle = item.attr.echartsStyle
-    option.xAxis.axisLabel = {}
-    option.xAxis.axisLabel.textStyle = item.attr.echartsStyle
-    
-    const y = item.bindYElement ? `data:state.value.${item.bindYElement}` : ''
-    const series = item.bindSeriesElement ? `data:state.${item.bindSeriesElement}` : ''
-    const x = item.bindXElement ? `data:state.value.${item.bindXElement}` : ''
+    const y = item.bindYElement ? `data:get(${JSON.stringify(item.bindYElement)})` : ''
+    const series = item.bindSeriesElement ? `data:get(${JSON.stringify(item.bindSeriesElement)})` : ''
+    const x = item.bindXElement ? `data:get(${JSON.stringify(item.bindXElement)})` : ''
     res += `
     const echartsRef${index} = ref(null);
     const echartsOptions${index}=computed(()=>{

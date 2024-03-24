@@ -5,7 +5,6 @@ const parseReactCode = async (element, name, lib, variable, event, props, onload
   const component = []
   const echartsElement = []
   const el = parseReactElement(element, variable, props, event, component, echartsElement)
-  const noRequest = event.filter((item) => { return item.type === 'request' }).length === 0
 
   return prettier.format(`
   ${parseReactImport(component, lib, echartsElement)}
@@ -18,7 +17,7 @@ const parseReactCode = async (element, name, lib, variable, event, props, onload
 
   ${parseReactSet()}
 
-  ${noRequest ? '' : parseRequest()}
+  ${parseRequest()}
 
   ${parseReactEcharts(echartsElement) || ''}
 
@@ -161,7 +160,6 @@ const parseReactElement = (element, variable, props, event, component, echartsEl
         }
         current[keys[keys.length - 1]] = transfromConstToVariable(t_item.fromArray);
       })
-      if (item.circleElement.attr) item.circleElement.attr['key'] = 'index'
       el += `<div${parseReactElementAttribute(item, variable, props, event)}>
         {state.${item.circleVariableName}.map((item,index)=>{
           return ${parseReactElement([item.circleElement], variable, props, event, component, echartsElement)}
@@ -342,14 +340,10 @@ const parseReactEcharts = (echartsElement) => {
     option.xAxis._replace_x = "#"
     option.yAxis._replace_y = "#"
 
-    option.yAxis.axisLabel = {}
-    option.yAxis.axisLabel.textStyle = item.attr.echartsStyle
-    option.xAxis.axisLabel = {}
-    option.xAxis.axisLabel.textStyle = item.attr.echartsStyle
 
-    const y = item.bindYElement ? `data:state.${item.bindYElement}` : ''
-    const series = item.bindSeriesElement ? `data:state.${item.bindSeriesElement}` : ''
-    const x = item.bindXElement ? `data:state.${item.bindXElement}` : ''
+    const y = item.bindYElement ? `data:get(${JSON.stringify(item.bindYElement)})` : ''
+    const series = item.bindSeriesElement ? `data:get(${JSON.stringify(item.bindSeriesElement)})` : ''
+    const x = item.bindXElement ? `data:get(${JSON.stringify(item.bindXElement)})` : ''
     res += `
     const echartsRef${index} = useRef(null);
     const echartsOptions${index}=useMemo(()=>{

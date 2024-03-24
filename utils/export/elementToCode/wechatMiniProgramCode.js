@@ -270,6 +270,14 @@ const parseWechatMiniProgramSet = () => {
             [key]:value
           }
         })
+      },
+      const setState = (state) => {
+        this.setData({
+          state:{
+              ...this.data.state,
+              ...state
+          }
+        })
       }/* prettier-ignore */`
 }
 
