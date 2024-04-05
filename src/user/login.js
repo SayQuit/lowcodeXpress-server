@@ -9,6 +9,7 @@ loginRouter.post('/', async (req, res) => {
 
     try {
         const row = await selectUser(account, password)
+        if (row.password !== password) throw new Error()
         const token = await updateToken(account)
         sendData(res, {
             account,
