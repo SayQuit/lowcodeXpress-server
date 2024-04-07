@@ -120,12 +120,13 @@ const parseWechatMiniProgramElementAttribute = (item, variable, props, event) =>
   for (const key in item.attr) {
     if (attrArray.indexOf(key) === -1 && key !== 'children') {
       if (item.attr[key][0] === '{' && item.attr[key][item.attr[key].length - 1] === '}')
-        attr += ` ${key}="{{${item.attr[key]}}}"`
+        attr += ` ${key}="${item.attr[key]}"`
       else
         attr += ` ${key}=${JSON.stringify(item.attr[key])}`
       attrArray.push(key)
     }
   }
+  if(item.type==='image')attr+= ` mode="widthFix"`
   return attr
 }
 
@@ -226,7 +227,7 @@ const parseWechatMiniProgramEvent = (event) => {
         this.wxRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
       `
       if (item.request.set) {
-        fn += `  .then(( res )=>{ const { data }=res; for(const key in data){ const item=data[key]; if(this.get(key)) this.set(key,item) }})
+        fn += `  .then(( res )=>{ const { data }=res; for(const key in data){ const item=data[key]; this.setState(data) }})
         `
       }
       func += `
@@ -270,8 +271,8 @@ const parseWechatMiniProgramSet = () => {
             [key]:value
           }
         })
-      },
-      const setState = (state) => {
+      }/* prettier-ignore */
+      function setState (state) {
         this.setData({
           state:{
               ...this.data.state,
