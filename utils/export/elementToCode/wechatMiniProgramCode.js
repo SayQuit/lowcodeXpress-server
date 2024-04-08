@@ -227,7 +227,7 @@ const parseWechatMiniProgramEvent = (event) => {
         this.wxRequest(${JSON.stringify(item.request.url)}, ${JSON.stringify(item.request.method)}, params)
       `
       if (item.request.set) {
-        fn += `  .then(( res )=>{ const { data }=res; for(const key in data){ const item=data[key]; this.setState(data) }})
+        fn += `  .then(( res )=>{ const { data }=res;this.setState(data) })
         `
       }
       func += `
