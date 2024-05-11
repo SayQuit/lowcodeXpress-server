@@ -3,3 +3,4 @@
 # dependencies
 /node_modules
 /utils/db/db_password.txt
+/temp/*
