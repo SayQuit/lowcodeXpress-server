@@ -54,7 +54,6 @@ projectRouter.post('/', async (req, res) => {
         await deleteDirRecursive(path.join(folderPath, toHyphenCase(name)));
 
     } catch (error) {
-        console.log(error);
         sendFail(res);
     }
 });

@@ -30,7 +30,6 @@ const chartQuizCorrect = [{ "count": 0, "name": "人民公园", }, { "count": 0,
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  // console.log(Math.floor(Math.random() * (max - min + 1)) + min);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 app.get('/test', async (_, res) => {

@@ -69,7 +69,6 @@ fileRouter.post('/', async (req, res) => {
         }
         else sendFail(res)
     } catch (error) {
-        console.log(error);
         sendFail(res);
     }
 });

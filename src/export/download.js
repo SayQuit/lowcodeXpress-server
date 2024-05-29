@@ -29,7 +29,6 @@ downloadRouter.post('/', async (req, res) => {
         });
         await sendFilePromise();
     } catch (error) {
-        console.log(error);
         sendFail(res)
     }
 
