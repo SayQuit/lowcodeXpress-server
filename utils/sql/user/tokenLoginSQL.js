@@ -1,7 +1,7 @@
 const createDB = require('../../db')
 
-async function selectUser(token) {
-    const selectSQL = `select username, account from user where token='${token}'`
+async function selectUser(account) {
+    const selectSQL = `select username, account from user where account='${account}'`
     const db = await createDB()
     return new Promise((resolve,reject) => {
         db.query(selectSQL, (error, results) => {

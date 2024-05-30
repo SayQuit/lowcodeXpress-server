@@ -1,8 +1,7 @@
 const express = require('express');
 const fileRouter = express.Router();
-const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail } = require('../../utils/send');
-const { getToken } = require('../../utils/jwt');
+const { getDecodeAccount } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
 const path = require('path');
 const fs = require('fs');
@@ -18,13 +17,10 @@ const { compressProject } = require('../../utils/zip');
 fileRouter.post('/', async (req, res) => {
     const { headers } = req;
     const { id } = req.body;
-    const token = getToken(headers);
-
-    if (!token || !id) return sendFail(res);
+    const account= await getDecodeAccount(headers)
+    if (!account || !id) return sendFail(res);
 
     try {
-        const userRow = await selectUser(token);
-        const { account } = userRow;
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
         const code = await parseElementToFile(element, name, type, tech, lib, variable, event, props, onload);

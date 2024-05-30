@@ -1,8 +1,7 @@
 const express = require('express');
 const distRouter = express.Router();
-const { selectUser } = require('../../utils/sql/user/tokenLoginSQL')
 const { sendFail, sendData } = require('../../utils/send');
-const { getToken } = require('../../utils/jwt');
+const { getDecodeAccount } = require('../../utils/jwt');
 const { selectJSON } = require('../../utils/sql/project/detailSQL');
 const path = require('path');
 const { getRandomID } = require('../../utils/randomID');
@@ -23,14 +22,12 @@ const { installLib } = require('../../utils/export/libInstall');
 distRouter.post('/', async (req, res) => {
     const { headers } = req;
     const { id } = req.body;
-    const token = getToken(headers);
+    const account = await getDecodeAccount(headers);
 
-    if (!token || !id) return sendFail(res);
+    if (!account || !id) return sendFail(res);
 
     try {
 
-        const userRow = await selectUser(token);
-        const { account } = userRow;
         const detailRow = await selectJSON(account, id);
         const { element, name, type, tech, lib, variable, event, props, onload } = detailRow;
         if (!['react', 'vue'].includes(tech)) return sendFail(res)

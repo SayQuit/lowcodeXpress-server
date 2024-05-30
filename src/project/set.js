@@ -8,12 +8,10 @@ const JWT = require('../../utils/jwt')
 setRouter.post('/', async (req, res) => {
     const { element, id, name, description, type, tech, lib, variable, event, props, onload } = req.body
     const { headers } = req
-    const token = JWT.getToken(headers)
-    if (!token || !name || !description || !id || !type || !lib || !variable || !event || !props) return sendFail(res)
+    const account= await JWT.getDecodeAccount(headers)
+    if (!account || !name || !description || !id || !type || !lib || !variable || !event || !props) return sendFail(res)
 
     try {
-        const userRow = await tokenLoginSQL.selectUser(token)
-        const { account } = userRow
         await setSQL.updateJSON(account, element, id, name, description, type, tech, lib, variable, event, props, onload)
         sendData(res, null)
     } catch (error) {

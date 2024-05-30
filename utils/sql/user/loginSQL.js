@@ -21,16 +21,6 @@ async function selectUser(account) {
 }
 
 async function updateToken(account) {
-    const token = JWT.createToken()
-    const updateSQL = `UPDATE user SET token='${token}' WHERE account='${account}';`;
-    const db = await createDB()
-    return new Promise((resolve, reject) => {
-        db.query(updateSQL, (error) => {
-            if (error) reject(error)
-            else resolve(token)
-        })
-    })
+    return JWT.createToken(account)
 }
-
-
 module.exports = { selectUser, updateToken }
